@@ -863,7 +863,7 @@ function renderDashboard() {
     if (mount) mount.innerHTML = '<div class="empty">👤 Add an account to start tracking.</div>';
     const root = $("recentList");
     if (root) root.innerHTML = '<div class="empty">No activity yet.</div>';
-    return;
+return;
   }
 
   const totals = computeTotals(activeSeasonId());
@@ -920,9 +920,10 @@ function renderDashboard() {
     .slice(0, 6);
 
   const root = $("recentList");
+  if (!root) return;
   root.innerHTML = "";
 
-  if (matches.length === 0) {
+if (matches.length === 0) {
     const div = document.createElement("div");
     div.className = "empty";
     div.textContent = "🎟️ No matches yet — tap ➕ Add match to start tracking.";
