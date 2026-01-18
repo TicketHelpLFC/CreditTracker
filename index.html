@@ -59,6 +59,34 @@ body{
   margin-bottom:12px;
 }
 
+  /* Top bar layout */
+  .topbar{ padding:14px; }
+  .topbarGrid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+    align-items:end;
+  }
+  .topbarField .label{ margin-bottom:6px; }
+  .topbarActions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:12px;
+    justify-content:space-between;
+  }
+  .topbarActions .btn{ flex:1 1 auto; }
+  .topbarActions .btn.ghost{ flex:0 0 auto; padding-left:14px; padding-right:14px; }
+
+  @media (max-width: 520px){
+    .topbarGrid{ grid-template-columns:1fr; }
+    .topbarActions{ gap:8px; }
+    .topbarActions .btn{ flex:1 1 48%; }
+    .topbarActions .btn.ghost{ flex:0 0 auto; }
+  }
+
+
+
 .row{display:flex; align-items:center}
 .space-between{justify-content:space-between}
 .gap{gap:10px}
@@ -233,25 +261,26 @@ body{
   </header>
 
   <main class="container">
-    <!-- Season bar -->
-    <section class="card row space-between">
-      <div class="row gap wrap">
-        <div>
+    
+    <!-- Top bar -->
+    <section class="card topbar">
+      <div class="topbarGrid">
+        <div class="topbarField">
           <div class="label">👤 Account</div>
           <select id="accountSelect" class="select"></select>
         </div>
-        <div class="row gap" style="margin-top:8px;">
-          <button type="button" id="btnEditAccount" class="btn">✏️ Edit</button>
-          <button type="button" id="btnDeleteAccount" class="btn danger">🗑️ Delete</button>
-        </div>
-        <div>
+
+        <div class="topbarField">
           <div class="label">📅 Season</div>
           <select id="seasonSelect" class="select" data-role="season"></select>
         </div>
       </div>
-      <div class="row gap">
-        <button id="btnAddAccount" class="btn">➕ Add account to track</button>
-        <button id="btnSettings" class="btn ghost">⚙️</button>
+
+      <div class="topbarActions">
+        <button type="button" id="btnEditAccount" class="btn">✏️ Edit</button>
+        <button type="button" id="btnDeleteAccount" class="btn danger">🗑️ Delete</button>
+        <button id="btnAddAccount" class="btn">➕ Add account</button>
+        <button id="btnSettings" class="btn ghost" aria-label="Settings">⚙️</button>
       </div>
     </section>
 
@@ -490,7 +519,7 @@ body{
     </section>
 
 <!-- Settings modal -->
-    <dialog id="settingsModal" class="modal hidden">
+    <dialog id="settingsModal" class="modal">
       <div class="modalInner">
         <div class="row space-between">
           <div class="label">⚙️ Rules & Settings</div>
@@ -1241,6 +1270,7 @@ function importJSONFile(file) {
 }
 
 function openSettings() {
+  $("settingsModal").classList.remove("hidden");
   $("ruleForwardedNoCredit").checked = !!state.data.settings.ruleForwardedNoCredit;
   $("ruleReturnedNoCredit").checked = !!state.data.settings.ruleReturnedNoCredit;
   $("ruleHospitalityNoCredit").checked = !!state.data.settings.ruleHospitalityNoCredit;
