@@ -1,10 +1,9 @@
 {
+  "name": "TicketHelpLFC Credit Tracker",
+  "short_name": "CreditTracker",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "id": "./",
-  "name": "TicketHelpLFC Credit Tracker",
-  "short_name": "CreditTracker",
   "background_color": "#0B2E22",
   "theme_color": "#0B2E22",
   "icons": [
