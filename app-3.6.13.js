@@ -1,4 +1,4 @@
-const BUILD_VERSION = "3.6.15-gh";
+const BUILD_VERSION = "3.6.16-gh";
 /* TicketHelpLFC Credit Tracker – PWA Starter (Local-only) */
 
 const STORAGE_KEY = "thlfc_credit_tracker_v1";
@@ -236,13 +236,10 @@ function setView(viewName) {
   $("viewDash").classList.toggle("hidden", viewName !== "dash");
   $("viewMatches").classList.toggle("hidden", viewName !== "matches");
   $("viewAdd").classList.toggle("hidden", viewName !== "add");
-  if (viewName === "fixtures") { setTimeout(renderFixtures, 0); }
+  if (viewName === "fixtures") { setTimeout(() => { bindFixturesControls(); renderFixtures(); }, 0); }
   if (viewName === "setup") { setTimeout(renderSetupNames, 0); }
   $("viewFixtures").classList.toggle("hidden", viewName !== "fixtures");
-  if (viewName === "fixtures") {
-    // Render after view becomes visible
-    setTimeout(renderFixtures, 0);
-  }
+  if (viewName === "fixtures") { setTimeout(() => { bindFixturesControls(); renderFixtures(); }, 0); }
 }
 
 
@@ -840,6 +837,7 @@ function init() {
   load();
   setupPWA();
   bindEvents();
+  try { bindFixturesControls(); } catch(e) {}
   clearForm();
   renderAll();
   setView("dash");
@@ -847,11 +845,10 @@ function init() {
   if (!state.data.accounts || state.data.accounts.length === 0) {
     setView("setup");
     renderSetupNames();
-  }
+  try { populateAllSeasonSelects(); } catch(e) {}
 }
-
-init();
-
+}
+document.addEventListener("DOMContentLoaded", init);
 /* ---------- Accounts + Setup ---------- */
 
 
@@ -867,7 +864,8 @@ function renderSetupNames() {
     row.className = "item";
 
     row.innerHTML = `
-      <div class="fieldLabel">Account ${i}</div>
+      <div class="fieldLabel">Account ${i  try { populateAllSeasonSelects(); } catch(e) {}
+}</div>
       <input class="input" id="setupName_${i}" placeholder="${i === 1 ? "Me" : "Account " + i}" />
 
       <div class="fieldLabel" style="margin-top:10px;">AutoCup (Home) for this account</div>
@@ -1248,4 +1246,34 @@ function parseICSFixtures(text){
 // Force SW to check for updates (helps Netlify deploys)
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.getRegistration().then(reg => { if (reg) reg.update(); });
+}
+
+function bindFixturesControls(){
+  const fs = document.getElementById("fixtureShow");
+  const fc = document.getElementById("fixtureComp");
+  const fr = document.getElementById("btnReloadFixtures");
+  if (fs) fs.onchange = () => renderFixtures();
+  if (fc) fc.onchange = () => renderFixtures();
+  if (fr) fr.onclick = () => { fixturesCache = null; renderFixtures(); };
+}
+
+function seasonLabel(startYY){
+  const a = String(startYY).padStart(2,'0');
+  const b = String((startYY+1)%100).padStart(2,'0');
+  return `${a}/${b}`;
+}
+function populateSeasonSelect(sel){
+  if(!sel) return;
+  if(sel.options && sel.options.length > 0) return;
+  const now = new Date();
+  const yy = now.getFullYear() % 100;
+  for(let i=0;i<8;i++){
+    const opt = document.createElement("option");
+    opt.value = seasonLabel(yy+i);
+    opt.textContent = seasonLabel(yy+i);
+    sel.appendChild(opt);
+  }
+}
+function populateAllSeasonSelects(){
+  document.querySelectorAll('select.seasonSelect, select[data-role="season"]').forEach(populateSeasonSelect);
 }
