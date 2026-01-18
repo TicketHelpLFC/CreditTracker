@@ -297,7 +297,40 @@ body{
     <!-- Dashboard -->
     <section id="viewDash" class="view">
 
-      <!-- Per-competition credits first -->
+      <!-- Summary -->
+      <section class="card">
+        <div class="row space-between">
+          <div>
+            <div class="label">🏠 Summary</div>
+            <div class="hint">Credits counted only when set to 🟢 Credit.</div>
+          </div>
+        </div>
+
+        <div class="grid5" style="margin-top:12px;">
+          <div class="stat small">
+            <div class="statLabel">Home</div>
+            <div id="statHome" class="statValue small">0</div>
+          </div>
+          <div class="stat small">
+            <div class="statLabel">Away</div>
+            <div id="statAway" class="statValue small">0</div>
+          </div>
+          <div class="stat small">
+            <div class="statLabel">Total</div>
+            <div id="statTotal" class="statValue small">0</div>
+          </div>
+          <div class="stat small">
+            <div class="statLabel">Spend</div>
+            <div id="statSpend" class="statValue small">£0</div>
+          </div>
+          <div class="stat small">
+            <div class="statLabel">Avg ticket</div>
+            <div id="statAvgSpend" class="statValue small">£0</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Per-competition credits -->
       <section class="card">
         <div class="row space-between">
           <div>
@@ -307,6 +340,19 @@ body{
         </div>
         <div id="compBreakdown" class="breakdown"></div>
       </section>
+
+      <!-- Recent -->
+      <section class="card">
+        <div class="row space-between">
+          <div>
+            <div class="label">🕒 Recent activity</div>
+            <div class="hint">Last 6 matches updated.</div>
+          </div>
+        </div>
+        <div id="recentList" class="list" style="margin-top:12px;"></div>
+      </section>
+
+    </section>
 </section>
 
     <!-- Matches -->
@@ -358,7 +404,9 @@ body{
         <form id="matchForm" class="form">
           <input type="hidden" id="matchId" />
 
-          <div class="grid2">
+          
+          <input type="hidden" id="fixtureKey" />
+<div class="grid2">
             <div>
               <div class="fieldLabel">Opponent</div>
               <input id="opponent" class="input" placeholder="e.g. Arsenal" required />
@@ -440,7 +488,52 @@ body{
       </section>
     </section>
 
-    <!-- Settings modal -->
+    
+
+    <!-- Fixtures -->
+    <section id="viewFixtures" class="view hidden">
+      <section class="card">
+        <div class="row space-between">
+          <div>
+            <div class="label">📅 Fixtures</div>
+            <div class="hint">Tap a fixture to pre-fill the Add screen.</div>
+          </div>
+          <button id="btnReloadFixtures" class="btn ghost">🔄 Refresh</button>
+          <label class="btn ghost fileBtn">📥 Import fixtures (ICS)
+            <input id="importFixturesFile" type="file" accept=".ics,text/calendar" hidden />
+          </label>
+          <button id="btnClearFixtures" class="btn ghost">🧹 Clear imported</button>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <div class="fieldLabel">Show</div>
+            <select id="fixtureShow" class="select">
+              <option value="upcoming" selected>Upcoming</option>
+              <option value="past">Past</option>
+              <option value="all">All</option>
+            </select>
+          </div>
+          <div>
+            <div class="fieldLabel">Filter</div>
+            <select id="fixtureComp" class="select">
+              <option value="" selected>All competitions</option>
+              <option value="PL">PL</option>
+              <option value="UCL">UCL</option>
+              <option value="FAC">FA Cup</option>
+              <option value="LC">League Cup</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hint" id="fixturesCount" style="margin-top:10px;"></div>
+        <div id="fixturesList" class="list" style="margin-top:12px;"></div>
+        <div id="fixturesEmpty" class="hint hidden" style="margin-top:12px;">No fixtures found.</div>
+      </section>
+    </section>
+
+<!-- Settings modal -->
     <dialog id="settingsModal" class="modal hidden">
       <div class="modalInner">
         <div class="row space-between">
@@ -1341,7 +1434,7 @@ const ce=document.getElementById("fixturesCount"); if(ce) ce.textContent = `Impo
     if (!m) return;
     clearForm();
     renderAll();
-    setView("matches");
+    setView("dash");
   });
 
   $("btnDelete").addEventListener("click", deleteCurrentMatch);
@@ -1888,47 +1981,4 @@ function deleteActiveAccount(){
 
 </body>
 </html>
-    <!-- Fixtures -->
-    <section id="viewFixtures" class="view hidden">
-      <section class="card">
-        <div class="row space-between">
-          <div>
-            <div class="label">📅 Fixtures</div>
-            <div class="hint">Tap a fixture to pre-fill the Add screen.</div>
-          </div>
-          <button id="btnReloadFixtures" class="btn ghost">🔄 Refresh</button>
-          <label class="btn ghost fileBtn">📥 Import fixtures (ICS)
-            <input id="importFixturesFile" type="file" accept=".ics,text/calendar" hidden />
-          </label>
-          <button id="btnClearFixtures" class="btn ghost">🧹 Clear imported</button>
-        </div>
-
-        <div class="grid2">
-          <div>
-            <div class="fieldLabel">Show</div>
-            <select id="fixtureShow" class="select">
-              <option value="upcoming" selected>Upcoming</option>
-              <option value="past">Past</option>
-              <option value="all">All</option>
-            </select>
-          </div>
-          <div>
-            <div class="fieldLabel">Filter</div>
-            <select id="fixtureComp" class="select">
-              <option value="" selected>All competitions</option>
-              <option value="PL">PL</option>
-              <option value="UCL">UCL</option>
-              <option value="FAC">FA Cup</option>
-              <option value="LC">League Cup</option>
-              <option value="OTHER">Other</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="hint" id="fixturesCount" style="margin-top:10px;"></div>
-        <div id="fixturesList" class="list" style="margin-top:12px;"></div>
-        <div id="fixturesEmpty" class="hint hidden" style="margin-top:12px;">No fixtures found.</div>
-      </section>
-    </section>
-
-
+    
