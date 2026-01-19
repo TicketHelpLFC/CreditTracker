@@ -270,6 +270,23 @@ dialog.modal .hint{
 dialog.modal input, dialog.modal select, dialog.modal textarea{
   color: var(--text) !important;
 }
+
+/* Fixtures header actions: smaller buttons */
+.btn.sm, .fileBtn.sm{
+  padding:6px 8px !important;
+  font-size:12px !important;
+  border-radius:10px !important;
+  line-height:1.1 !important;
+}
+
+.buildFooter{
+  margin:18px auto 26px;
+  width: min(980px, 100%);
+  padding: 0 14px;
+  opacity: .75;
+  font-size: 12px;
+  text-align:center;
+}
 </style>
 </head>
 <body>
@@ -509,6 +526,51 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
     </section>
 
     <!-- Settings modal -->
+
+
+    <!-- Fixtures -->
+    <section id="viewFixtures" class="view hidden">
+      <section class="card">
+        <div class="row space-between">
+          <div>
+            <div class="label">📅 Fixtures</div>
+            <div class="hint">Tap a fixture to pre-fill the Add screen.</div>
+          </div>
+          <button id="btnReloadFixtures" class="btn ghost sm">🔄 Refresh</button>
+          <label class="btn ghost fileBtn sm">📥 Import fixtures (ICS)
+            <input id="importFixturesFile" type="file" accept=".ics,text/calendar" hidden />
+          </label>
+          <button id="btnClearFixtures" class="btn ghost sm">🧹 Clear imported</button>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <div class="fieldLabel">Show</div>
+            <select id="fixtureShow" class="select">
+              <option value="upcoming" selected>Upcoming</option>
+              <option value="past">Past</option>
+              <option value="all">All</option>
+            </select>
+          </div>
+          <div>
+            <div class="fieldLabel">Filter</div>
+            <select id="fixtureComp" class="select">
+              <option value="" selected>All competitions</option>
+              <option value="PL">PL</option>
+              <option value="UCL">UCL</option>
+              <option value="FAC">FA Cup</option>
+              <option value="LC">League Cup</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hint" id="fixturesCount" style="margin-top:10px;"></div>
+        <div id="fixturesList" class="list" style="margin-top:12px;"></div>
+        <div id="fixturesEmpty" class="hint hidden" style="margin-top:12px;">No fixtures found.</div>
+      </section>
+    </section>
+
 </main>
 
   <div class="hint" style="text-align:center;margin:20px 0;">Build: 3.6.24 (Single-file + PWA)</div>
@@ -1920,49 +1982,7 @@ function deleteActiveAccount(){
 
 </script>
 
+
+  <footer class="buildFooter">Build 2026-01-19 • fixtures-small</footer>
 </body>
 </html>
-    <!-- Fixtures -->
-    <section id="viewFixtures" class="view hidden">
-      <section class="card">
-        <div class="row space-between">
-          <div>
-            <div class="label">📅 Fixtures</div>
-            <div class="hint">Tap a fixture to pre-fill the Add screen.</div>
-          </div>
-          <button id="btnReloadFixtures" class="btn ghost sm">🔄 Refresh</button>
-          <label class="btn ghost fileBtn sm">📥 Import fixtures (ICS)
-            <input id="importFixturesFile" type="file" accept=".ics,text/calendar" hidden />
-          </label>
-          <button id="btnClearFixtures" class="btn ghost sm">🧹 Clear imported</button>
-        </div>
-
-        <div class="grid2">
-          <div>
-            <div class="fieldLabel">Show</div>
-            <select id="fixtureShow" class="select">
-              <option value="upcoming" selected>Upcoming</option>
-              <option value="past">Past</option>
-              <option value="all">All</option>
-            </select>
-          </div>
-          <div>
-            <div class="fieldLabel">Filter</div>
-            <select id="fixtureComp" class="select">
-              <option value="" selected>All competitions</option>
-              <option value="PL">PL</option>
-              <option value="UCL">UCL</option>
-              <option value="FAC">FA Cup</option>
-              <option value="LC">League Cup</option>
-              <option value="OTHER">Other</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="hint" id="fixturesCount" style="margin-top:10px;"></div>
-        <div id="fixturesList" class="list" style="margin-top:12px;"></div>
-        <div id="fixturesEmpty" class="hint hidden" style="margin-top:12px;">No fixtures found.</div>
-      </section>
-    </section>
-
-
