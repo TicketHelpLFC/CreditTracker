@@ -584,6 +584,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
 
 
 
+
 /* Inlined app script (single-file build) */
 
 /* Inlined app script (single-file build) */
@@ -1367,6 +1368,21 @@ function renderAll() {
 }
 
 function setupPWA() {
+
+// Install button (show in browser; enable when install prompt is available)
+const installBtn = $("btnInstall");
+const isStandalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+const isIOSStandalone = !!window.navigator.standalone;
+if (installBtn) {
+  if (isStandalone || isIOSStandalone) {
+    installBtn.hidden = true;
+  } else {
+    installBtn.hidden = false;
+    installBtn.disabled = true; // enabled once beforeinstallprompt fires
+    installBtn.title = "Install will become available when the browser allows it.";
+  }
+}
+
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js");
   }
@@ -1374,6 +1390,8 @@ function setupPWA() {
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     state.deferredPrompt = e;
+    const btn = $("btnInstall");
+    if (btn){ btn.hidden = false; btn.disabled = false; btn.title = "Install this app"; }
     const btn = $("btnInstall");
     btn.hidden = false;
     btn.addEventListener("click", async () => {
@@ -2029,6 +2047,7 @@ function deleteActiveAccount(){
   renderAll();
   showToast("Account deleted");
 }
+
 
 
 
