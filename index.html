@@ -34,7 +34,7 @@ body{
   color:var(--text);
 }
 
-.appHeader{
+.topbar{
   position:sticky; top:0;
   display:flex; align-items:center; justify-content:space-between;
   padding:12px 14px;
@@ -221,7 +221,7 @@ body{
 </style>
 </head>
 <body>
-  <header class="appHeader">
+  <header class="topbar">
     <div class="brand">
       <img class="brandLogo" src="icons/icon-192.png" alt="TicketHelpLFC" />
       <div>
@@ -643,10 +643,7 @@ function activeAccountId() {
 }
 
 function setActiveSeason(id) {
-  const seasons = Array.isArray(state.data.seasons) ? state.data.seasons : [];
-  const ok = seasons.some(s => s.id === id);
-  const next = ok ? id : (seasons[0]?.id || id);
-  state.data.activeSeasonId = next;
+  state.data.activeSeasonId = id;
   save();
   renderAll();
 }
@@ -775,15 +772,9 @@ function renderSeasonSelect() {
     opt.textContent = s.label;
     sel.appendChild(opt);
   }
+  sel.value = activeSeasonId();
 
-  const desired = activeSeasonId();
-  const hasDesired = Array.from(sel.options).some(o => o.value === desired);
-  sel.value = hasDesired ? desired : (sel.options[0]?.value || "");
-  if (!hasDesired && sel.value) {
-    state.data.activeSeasonId = sel.value;
-    save();
-  }
-// mirror into modals if present
+  // mirror into modals if present
   const onboardSeason = $("onboardSeason");
   if (onboardSeason) {
     onboardSeason.innerHTML = sel.innerHTML;
@@ -881,9 +872,10 @@ function renderDashboard() {
     .slice(0, 6);
 
   const root = $("recentList");
+  if (!root) return;
   root.innerHTML = "";
 
-  if (matches.length === 0) {
+if (matches.length === 0) {
     const div = document.createElement("div");
     div.className = "empty";
     div.textContent = "🎟️ No matches yet — tap ➕ Add match to start tracking.";
@@ -1400,7 +1392,8 @@ function init() {
   if (!state.data.accounts || state.data.accounts.length === 0) {
     setView("setup");
     renderSetupNames();
-  }
+  
+}
 }
 
 /* ---------- Accounts + Setup ---------- */
@@ -1449,11 +1442,12 @@ function renderSetupNames() {
 
 function openSetupForNewAccount() {
   // Convenience: go to setup screen but keep existing accounts
+  state.isAddingSingle = true;
   setView("setup");
   $("setupCount").value = "1";
 
-  // Ensure season select is populated + defaults to the currently active season
-  try { populateAllSeasonSelects(); } catch(e) {}
+  // Ensure the setup season dropdown is populated with real season IDs
+  try { populateSeasonSelect($("setupSeason")); } catch(e) {}
   if ($("setupSeason")) $("setupSeason").value = activeSeasonId();
 
   renderSetupNames();
@@ -1827,21 +1821,21 @@ function seasonLabel(startYY){
 }
 function populateSeasonSelect(sel){
   if(!sel) return;
-  // Always rebuild options (some templates insert a placeholder option)
-  const current = sel.value || "";
+
+  // Build from stored seasons (IDs like "2025-26", labels like "25/26")
+  const desired = sel.value || activeSeasonId();
   sel.innerHTML = "";
-  const now = new Date();
-  const yy = now.getFullYear() % 100;
-  const seasonStart = (now.getMonth() >= 6) ? yy : ((yy + 99) % 100); // July+ => YY/YY+1 else (YY-1)/YY
-  for(let i=0;i<8;i++){
-    const label = seasonLabel((seasonStart+i)%100);
+
+  const seasons = Array.isArray(state.data.seasons) ? state.data.seasons : generateSeasons().seasons;
+  for (const s of seasons) {
     const opt = document.createElement("option");
-    opt.value = label;
-    opt.textContent = label;
+    opt.value = s.id;
+    opt.textContent = s.label;
     sel.appendChild(opt);
   }
-  // Restore previous selection if possible
-  if (current) sel.value = current;
+
+  const hasDesired = Array.from(sel.options).some(o => o.value === desired);
+  sel.value = hasDesired ? desired : (activeSeasonId() || sel.options[0]?.value || "");
 }
 function populateAllSeasonSelects(){
   document.querySelectorAll('select.seasonSelect, select[data-role="season"]').forEach(populateSeasonSelect);
