@@ -59,34 +59,6 @@ body{
   margin-bottom:12px;
 }
 
-  /* Top bar layout */
-  .topbar{ padding:14px; }
-  .topbarGrid{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:12px;
-    align-items:end;
-  }
-  .topbarField .label{ margin-bottom:6px; }
-  .topbarActions{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-top:12px;
-    justify-content:space-between;
-  }
-  .topbarActions .btn{ flex:1 1 auto; }
-  .topbarActions .btn.ghost{ flex:0 0 auto; padding-left:14px; padding-right:14px; }
-
-  @media (max-width: 520px){
-    .topbarGrid{ grid-template-columns:1fr; }
-    .topbarActions{ gap:8px; }
-    .topbarActions .btn{ flex:1 1 48%; }
-    .topbarActions .btn.ghost{ flex:0 0 auto; }
-  }
-
-
-
 .row{display:flex; align-items:center}
 .space-between{justify-content:space-between}
 .gap{gap:10px}
@@ -261,26 +233,25 @@ body{
   </header>
 
   <main class="container">
-    
-    <!-- Top bar -->
-    <section class="card topbar">
-      <div class="topbarGrid">
-        <div class="topbarField">
+    <!-- Season bar -->
+    <section class="card row space-between">
+      <div class="row gap wrap">
+        <div>
           <div class="label">👤 Account</div>
           <select id="accountSelect" class="select"></select>
         </div>
-
-        <div class="topbarField">
+        <div class="row gap" style="margin-top:8px;">
+          <button type="button" id="btnEditAccount" class="btn">✏️ Edit</button>
+          <button type="button" id="btnDeleteAccount" class="btn danger">🗑️ Delete</button>
+        </div>
+        <div>
           <div class="label">📅 Season</div>
           <select id="seasonSelect" class="select" data-role="season"></select>
         </div>
       </div>
-
-      <div class="topbarActions">
-        <button type="button" id="btnEditAccount" class="btn">✏️ Edit</button>
-        <button type="button" id="btnDeleteAccount" class="btn danger">🗑️ Delete</button>
-        <button id="btnAddAccount" class="btn">➕ Add account</button>
-        <button id="btnSettings" class="btn ghost" aria-label="Settings">⚙️</button>
+      <div class="row gap">
+        <button id="btnAddAccount" class="btn">➕ Add account to track</button>
+        <button id="btnSettings" class="btn ghost">⚙️</button>
       </div>
     </section>
 
@@ -326,7 +297,7 @@ body{
     <!-- Dashboard -->
     <section id="viewDash" class="view">
 
-      <!-- Per-competition credits -->
+      <!-- Per-competition credits first -->
       <section class="card">
         <div class="row space-between">
           <div>
@@ -335,8 +306,6 @@ body{
           </div>
         </div>
         <div id="compBreakdown" class="breakdown"></div>
-      </section>
-
       </section>
 </section>
 
@@ -389,9 +358,7 @@ body{
         <form id="matchForm" class="form">
           <input type="hidden" id="matchId" />
 
-          
-          <input type="hidden" id="fixtureKey" />
-<div class="grid2">
+          <div class="grid2">
             <div>
               <div class="fieldLabel">Opponent</div>
               <input id="opponent" class="input" placeholder="e.g. Arsenal" required />
@@ -473,53 +440,8 @@ body{
       </section>
     </section>
 
-    
-
-    <!-- Fixtures -->
-    <section id="viewFixtures" class="view hidden">
-      <section class="card">
-        <div class="row space-between">
-          <div>
-            <div class="label">📅 Fixtures</div>
-            <div class="hint">Tap a fixture to pre-fill the Add screen.</div>
-          </div>
-          <button id="btnReloadFixtures" class="btn ghost">🔄 Refresh</button>
-          <label class="btn ghost fileBtn">📥 Import fixtures (ICS)
-            <input id="importFixturesFile" type="file" accept=".ics,text/calendar" hidden />
-          </label>
-          <button id="btnClearFixtures" class="btn ghost">🧹 Clear imported</button>
-        </div>
-
-        <div class="grid2">
-          <div>
-            <div class="fieldLabel">Show</div>
-            <select id="fixtureShow" class="select">
-              <option value="upcoming" selected>Upcoming</option>
-              <option value="past">Past</option>
-              <option value="all">All</option>
-            </select>
-          </div>
-          <div>
-            <div class="fieldLabel">Filter</div>
-            <select id="fixtureComp" class="select">
-              <option value="" selected>All competitions</option>
-              <option value="PL">PL</option>
-              <option value="UCL">UCL</option>
-              <option value="FAC">FA Cup</option>
-              <option value="LC">League Cup</option>
-              <option value="OTHER">Other</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="hint" id="fixturesCount" style="margin-top:10px;"></div>
-        <div id="fixturesList" class="list" style="margin-top:12px;"></div>
-        <div id="fixturesEmpty" class="hint hidden" style="margin-top:12px;">No fixtures found.</div>
-      </section>
-    </section>
-
-<!-- Settings modal -->
-    <dialog id="settingsModal" class="modal">
+    <!-- Settings modal -->
+    <dialog id="settingsModal" class="modal hidden">
       <div class="modalInner">
         <div class="row space-between">
           <div class="label">⚙️ Rules & Settings</div>
@@ -585,6 +507,7 @@ body{
 <script type="application/json" id="fixturesData">[{"id": "2025-08-15-pl-bournemouth-h-2000", "season": "25/26", "date": "2025-08-15", "time": "20:00", "datetime_utc": "2025-08-15T20:00:00Z", "competition": "PL", "opponent": "Bournemouth", "venue": "H", "location": ""}, {"id": "2025-08-23-pl-newcastleunited-a-1500", "season": "25/26", "date": "2025-08-23", "time": "15:00", "datetime_utc": "2025-08-23T15:00:00Z", "competition": "PL", "opponent": "Newcastle United", "venue": "A", "location": ""}, {"id": "2025-08-30-pl-arsenal-h-1500", "season": "25/26", "date": "2025-08-30", "time": "15:00", "datetime_utc": "2025-08-30T15:00:00Z", "competition": "PL", "opponent": "Arsenal", "venue": "H", "location": ""}, {"id": "2025-09-13-pl-burnley-a-1500", "season": "25/26", "date": "2025-09-13", "time": "15:00", "datetime_utc": "2025-09-13T15:00:00Z", "competition": "PL", "opponent": "Burnley", "venue": "A", "location": ""}, {"id": "2025-09-20-pl-everton-h-1500", "season": "25/26", "date": "2025-09-20", "time": "15:00", "datetime_utc": "2025-09-20T15:00:00Z", "competition": "PL", "opponent": "Everton", "venue": "H", "location": ""}, {"id": "2025-09-27-pl-crystalpalace-a-1500", "season": "25/26", "date": "2025-09-27", "time": "15:00", "datetime_utc": "2025-09-27T15:00:00Z", "competition": "PL", "opponent": "Crystal Palace", "venue": "A", "location": ""}, {"id": "2025-10-04-pl-chelsea-a-1500", "season": "25/26", "date": "2025-10-04", "time": "15:00", "datetime_utc": "2025-10-04T15:00:00Z", "competition": "PL", "opponent": "Chelsea", "venue": "A", "location": ""}, {"id": "2025-10-18-pl-manchesterunited-h-1500", "season": "25/26", "date": "2025-10-18", "time": "15:00", "datetime_utc": "2025-10-18T15:00:00Z", "competition": "PL", "opponent": "Manchester United", "venue": "H", "location": ""}, {"id": "2025-10-25-pl-brentford-a-1500", "season": "25/26", "date": "2025-10-25", "time": "15:00", "datetime_utc": "2025-10-25T15:00:00Z", "competition": "PL", "opponent": "Brentford", "venue": "A", "location": ""}, {"id": "2025-11-01-pl-astonvilla-h-1500", "season": "25/26", "date": "2025-11-01", "time": "15:00", "datetime_utc": "2025-11-01T15:00:00Z", "competition": "PL", "opponent": "Aston Villa", "venue": "H", "location": ""}, {"id": "2025-11-08-pl-manchestercity-a-1500", "season": "25/26", "date": "2025-11-08", "time": "15:00", "datetime_utc": "2025-11-08T15:00:00Z", "competition": "PL", "opponent": "Manchester City", "venue": "A", "location": ""}, {"id": "2025-11-22-pl-nottinghamforest-h-1500", "season": "25/26", "date": "2025-11-22", "time": "15:00", "datetime_utc": "2025-11-22T15:00:00Z", "competition": "PL", "opponent": "Nottingham Forest", "venue": "H", "location": ""}, {"id": "2025-11-29-pl-westhamunited-a-1500", "season": "25/26", "date": "2025-11-29", "time": "15:00", "datetime_utc": "2025-11-29T15:00:00Z", "competition": "PL", "opponent": "West Ham United", "venue": "A", "location": ""}, {"id": "2025-12-03-pl-sunderland-h-2000", "season": "25/26", "date": "2025-12-03", "time": "20:00", "datetime_utc": "2025-12-03T20:00:00Z", "competition": "PL", "opponent": "Sunderland", "venue": "H", "location": ""}, {"id": "2025-12-06-pl-leedsunited-a-1500", "season": "25/26", "date": "2025-12-06", "time": "15:00", "datetime_utc": "2025-12-06T15:00:00Z", "competition": "PL", "opponent": "Leeds United", "venue": "A", "location": ""}, {"id": "2025-12-13-pl-brightonhovealbion-h-1500", "season": "25/26", "date": "2025-12-13", "time": "15:00", "datetime_utc": "2025-12-13T15:00:00Z", "competition": "PL", "opponent": "Brighton & Hove Albion", "venue": "H", "location": ""}, {"id": "2025-12-20-pl-tottenhamhotspur-a-1500", "season": "25/26", "date": "2025-12-20", "time": "15:00", "datetime_utc": "2025-12-20T15:00:00Z", "competition": "PL", "opponent": "Tottenham Hotspur", "venue": "A", "location": ""}, {"id": "2025-12-27-pl-wolverhamptonwanderers-h-1500", "season": "25/26", "date": "2025-12-27", "time": "15:00", "datetime_utc": "2025-12-27T15:00:00Z", "competition": "PL", "opponent": "Wolverhampton Wanderers", "venue": "H", "location": ""}, {"id": "2025-12-30-pl-leedsunited-h-2000", "season": "25/26", "date": "2025-12-30", "time": "20:00", "datetime_utc": "2025-12-30T20:00:00Z", "competition": "PL", "opponent": "Leeds United", "venue": "H", "location": ""}, {"id": "2026-01-08-pl-arsenal-a", "season": "25/26", "datetime_utc": "2026-01-08T00:00:00+00:00", "date": "2026-01-08", "time": "00:00", "competition": "PL", "opponent": "Arsenal", "venue": "A", "location": "Emirates Stadium\\, London"}, {"id": "2026-01-12-fa-barnsley-h", "season": "25/26", "datetime_utc": "2026-01-12T00:00:00+00:00", "date": "2026-01-12", "time": "00:00", "competition": "FA", "opponent": "Barnsley", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-17-pl-burnley-h", "season": "25/26", "datetime_utc": "2026-01-17T00:00:00+00:00", "date": "2026-01-17", "time": "00:00", "competition": "PL", "opponent": "Burnley", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-18-other-welcometoliverpoolfc!-h", "season": "25/26", "datetime_utc": "2026-01-18T00:00:00+00:00", "date": "2026-01-18", "time": "00:00", "competition": "OTHER", "opponent": "Welcome to Liverpool FC!", "venue": "H", "location": "Proudly powered by ECAL"}, {"id": "2026-01-21-ucl-marseille-a", "season": "25/26", "datetime_utc": "2026-01-21T00:00:00+00:00", "date": "2026-01-21", "time": "00:00", "competition": "UCL", "opponent": "Marseille", "venue": "A", "location": "Orange Vélodrome\\, Marseille"}, {"id": "2026-01-24-pl-bournemouth-a", "season": "25/26", "datetime_utc": "2026-01-24T00:00:00+00:00", "date": "2026-01-24", "time": "00:00", "competition": "PL", "opponent": "Bournemouth", "venue": "A", "location": "Vitality Stadium\\, Bournemouth"}, {"id": "2026-01-28-ucl-qarabag-h", "season": "25/26", "datetime_utc": "2026-01-28T00:00:00+00:00", "date": "2026-01-28", "time": "00:00", "competition": "UCL", "opponent": "Qarabag", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-31-pl-newcastleunited-h", "season": "25/26", "datetime_utc": "2026-01-31T00:00:00+00:00", "date": "2026-01-31", "time": "00:00", "competition": "PL", "opponent": "Newcastle United", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-08-pl-manchestercity-h", "season": "25/26", "datetime_utc": "2026-02-08T00:00:00+00:00", "date": "2026-02-08", "time": "00:00", "competition": "PL", "opponent": "Manchester City", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-11-pl-sunderland-a", "season": "25/26", "datetime_utc": "2026-02-11T00:00:00+00:00", "date": "2026-02-11", "time": "00:00", "competition": "PL", "opponent": "Sunderland", "venue": "A", "location": "Stadium of Light\\, Sunderland"}, {"id": "2026-02-14-fa-brightonandhovealbion-h", "season": "25/26", "datetime_utc": "2026-02-14T00:00:00+00:00", "date": "2026-02-14", "time": "00:00", "competition": "FA", "opponent": "Brighton and Hove Albion", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-21-pl-nottinghamforest-a", "season": "25/26", "datetime_utc": "2026-02-21T00:00:00+00:00", "date": "2026-02-21", "time": "00:00", "competition": "PL", "opponent": "Nottingham Forest", "venue": "A", "location": "The City Ground\\, Nottingham"}, {"id": "2026-02-28-pl-westhamunited-h", "season": "25/26", "datetime_utc": "2026-02-28T00:00:00+00:00", "date": "2026-02-28", "time": "00:00", "competition": "PL", "opponent": "West Ham United", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-03-04-pl-wolverhamptonwanderers-a", "season": "25/26", "datetime_utc": "2026-03-04T00:00:00+00:00", "date": "2026-03-04", "time": "00:00", "competition": "PL", "opponent": "Wolverhampton Wanderers", "venue": "A", "location": "Molineux Stadium\\, Wolverhampton"}, {"id": "2026-03-14-pl-tottenhamhotspur-h", "season": "25/26", "datetime_utc": "2026-03-14T00:00:00+00:00", "date": "2026-03-14", "time": "00:00", "competition": "PL", "opponent": "Tottenham Hotspur", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-03-21-pl-brightonandhovealbion-a", "season": "25/26", "datetime_utc": "2026-03-21T00:00:00+00:00", "date": "2026-03-21", "time": "00:00", "competition": "PL", "opponent": "Brighton and Hove Albion", "venue": "A", "location": "American Express Stadium\\, Falmer"}, {"id": "2026-04-11-pl-fulham-h", "season": "25/26", "datetime_utc": "2026-04-11T00:00:00+00:00", "date": "2026-04-11", "time": "00:00", "competition": "PL", "opponent": "Fulham", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-04-18-pl-everton-a", "season": "25/26", "datetime_utc": "2026-04-18T00:00:00+00:00", "date": "2026-04-18", "time": "00:00", "competition": "PL", "opponent": "Everton", "venue": "A", "location": "Hill Dickinson Stadium\\, Liverpool"}, {"id": "2026-04-25-pl-crystalpalace-h", "season": "25/26", "datetime_utc": "2026-04-25T00:00:00+00:00", "date": "2026-04-25", "time": "00:00", "competition": "PL", "opponent": "Crystal Palace", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-05-02-pl-manchesterunited-a", "season": "25/26", "datetime_utc": "2026-05-02T00:00:00+00:00", "date": "2026-05-02", "time": "00:00", "competition": "PL", "opponent": "Manchester United", "venue": "A", "location": "Old Trafford\\, Manchester"}, {"id": "2026-05-09-pl-chelsea-h", "season": "25/26", "datetime_utc": "2026-05-09T00:00:00+00:00", "date": "2026-05-09", "time": "00:00", "competition": "PL", "opponent": "Chelsea", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-05-17-pl-astonvilla-a", "season": "25/26", "datetime_utc": "2026-05-17T00:00:00+00:00", "date": "2026-05-17", "time": "00:00", "competition": "PL", "opponent": "Aston Villa", "venue": "A", "location": "Villa Park\\, Birmingham"}, {"id": "2026-05-24-pl-brentford-h", "season": "25/26", "datetime_utc": "2026-05-24T00:00:00+00:00", "date": "2026-05-24", "time": "00:00", "competition": "PL", "opponent": "Brentford", "venue": "H", "location": "Anfield\\, Liverpool"}]</script>
 
 <script>
+
 /* Inlined app script (single-file build) */
 
 /* Inlined app script (single-file build) */
@@ -720,7 +643,10 @@ function activeAccountId() {
 }
 
 function setActiveSeason(id) {
-  state.data.activeSeasonId = id;
+  const seasons = Array.isArray(state.data.seasons) ? state.data.seasons : [];
+  const ok = seasons.some(s => s.id === id);
+  const next = ok ? id : (seasons[0]?.id || id);
+  state.data.activeSeasonId = next;
   save();
   renderAll();
 }
@@ -849,9 +775,15 @@ function renderSeasonSelect() {
     opt.textContent = s.label;
     sel.appendChild(opt);
   }
-  sel.value = activeSeasonId();
 
-  // mirror into modals if present
+  const desired = activeSeasonId();
+  const hasDesired = Array.from(sel.options).some(o => o.value === desired);
+  sel.value = hasDesired ? desired : (sel.options[0]?.value || "");
+  if (!hasDesired && sel.value) {
+    state.data.activeSeasonId = sel.value;
+    save();
+  }
+// mirror into modals if present
   const onboardSeason = $("onboardSeason");
   if (onboardSeason) {
     onboardSeason.innerHTML = sel.innerHTML;
@@ -892,7 +824,7 @@ function renderDashboard() {
     if (mount) mount.innerHTML = '<div class="empty">👤 Add an account to start tracking.</div>';
     const root = $("recentList");
     if (root) root.innerHTML = '<div class="empty">No activity yet.</div>';
-return;
+    return;
   }
 
   const totals = computeTotals(activeSeasonId());
@@ -949,10 +881,9 @@ return;
     .slice(0, 6);
 
   const root = $("recentList");
-  if (!root) return;
   root.innerHTML = "";
 
-if (matches.length === 0) {
+  if (matches.length === 0) {
     const div = document.createElement("div");
     div.className = "empty";
     div.textContent = "🎟️ No matches yet — tap ➕ Add match to start tracking.";
@@ -1270,7 +1201,6 @@ function importJSONFile(file) {
 }
 
 function openSettings() {
-  $("settingsModal").classList.remove("hidden");
   $("ruleForwardedNoCredit").checked = !!state.data.settings.ruleForwardedNoCredit;
   $("ruleReturnedNoCredit").checked = !!state.data.settings.ruleReturnedNoCredit;
   $("ruleHospitalityNoCredit").checked = !!state.data.settings.ruleHospitalityNoCredit;
@@ -1421,7 +1351,7 @@ const ce=document.getElementById("fixturesCount"); if(ce) ce.textContent = `Impo
     if (!m) return;
     clearForm();
     renderAll();
-    setView("dash");
+    setView("matches");
   });
 
   $("btnDelete").addEventListener("click", deleteCurrentMatch);
@@ -1470,8 +1400,7 @@ function init() {
   if (!state.data.accounts || state.data.accounts.length === 0) {
     setView("setup");
     renderSetupNames();
-  
-}
+  }
 }
 
 /* ---------- Accounts + Setup ---------- */
@@ -1522,6 +1451,11 @@ function openSetupForNewAccount() {
   // Convenience: go to setup screen but keep existing accounts
   setView("setup");
   $("setupCount").value = "1";
+
+  // Ensure season select is populated + defaults to the currently active season
+  try { populateAllSeasonSelects(); } catch(e) {}
+  if ($("setupSeason")) $("setupSeason").value = activeSeasonId();
+
   renderSetupNames();
 }
 
@@ -1964,8 +1898,52 @@ function deleteActiveAccount(){
   renderAll();
   showToast("Account deleted");
 }
+
 </script>
 
 </body>
 </html>
-    
+    <!-- Fixtures -->
+    <section id="viewFixtures" class="view hidden">
+      <section class="card">
+        <div class="row space-between">
+          <div>
+            <div class="label">📅 Fixtures</div>
+            <div class="hint">Tap a fixture to pre-fill the Add screen.</div>
+          </div>
+          <button id="btnReloadFixtures" class="btn ghost">🔄 Refresh</button>
+          <label class="btn ghost fileBtn">📥 Import fixtures (ICS)
+            <input id="importFixturesFile" type="file" accept=".ics,text/calendar" hidden />
+          </label>
+          <button id="btnClearFixtures" class="btn ghost">🧹 Clear imported</button>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <div class="fieldLabel">Show</div>
+            <select id="fixtureShow" class="select">
+              <option value="upcoming" selected>Upcoming</option>
+              <option value="past">Past</option>
+              <option value="all">All</option>
+            </select>
+          </div>
+          <div>
+            <div class="fieldLabel">Filter</div>
+            <select id="fixtureComp" class="select">
+              <option value="" selected>All competitions</option>
+              <option value="PL">PL</option>
+              <option value="UCL">UCL</option>
+              <option value="FAC">FA Cup</option>
+              <option value="LC">League Cup</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hint" id="fixturesCount" style="margin-top:10px;"></div>
+        <div id="fixturesList" class="list" style="margin-top:12px;"></div>
+        <div id="fixturesEmpty" class="hint hidden" style="margin-top:12px;">No fixtures found.</div>
+      </section>
+    </section>
+
+
