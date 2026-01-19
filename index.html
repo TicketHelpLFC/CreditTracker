@@ -443,7 +443,7 @@ body{
           <div>
             <div class="fieldLabel">Credit outcome</div>
             <div class="chips" role="group" aria-label="Credit outcome">
-<input type="hidden" id="creditCounts" value="unsure">
+<input type="hidden" id="creditCredit" value="unsure">
 
               <button type="button" class="chip" data-credit="yes">🟢 Credit</button>
               <button type="button" class="chip" data-credit="no">🔴 No credit</button>
@@ -700,7 +700,7 @@ function getSeasonMatches(seasonId) {
 }
 
 function creditIsCounted(match) {
-  return match.creditCounts === "yes";
+  return match.creditCredit === "yes";
 }
 
 function computeSpend(seasonId) {
@@ -718,7 +718,7 @@ function computeBreakdownByCompetition(seasonId) {
   for (const c of comps) out[c] = { H: 0, A: 0 };
   for (const m of matches) {
     const c = out[m.competition] ? m.competition : "OTHER";
-    if (m.creditCounts === "yes") {
+    if (m.creditCredit === "yes") {
       if (m.venue === "H") out[c].H += 1;
       if (m.venue === "A") out[c].A += 1;
     }
@@ -760,8 +760,8 @@ function formatMeta(m) {
 }
 
 function badgeForCredit(m) {
-  if (m.creditCounts === "yes") return { text: "🟢 Counts", cls: "good" };
-  if (m.creditCounts === "no") return { text: "🔴 No credit", cls: "bad" };
+  if (m.creditCredit === "yes") return { text: "🟢 Credit", cls: "good" };
+  if (m.creditCredit === "no") return { text: "🔴 No credit", cls: "bad" };
   return { text: "ℹ️ Unsure", cls: "neutral" };
 }
 
@@ -1006,7 +1006,7 @@ function renderMatches() {
     .filter(m => {
       if (v && m.venue !== v) return false;
       if (c && m.competition !== c) return false;
-      if (cr && m.creditCounts !== cr) return false;
+      if (cr && m.creditCredit !== cr) return false;
       if (q) {
         const hay = `${m.opponent} ${m.notes || ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -1046,7 +1046,7 @@ function clearForm() {
 }
 
 function setCreditChip(val) {
-  const cc = $("creditCounts");
+  const cc = $("creditCredit");
   if (cc) cc.value = val;
   document.querySelectorAll(".chip").forEach(ch => {
     ch.classList.toggle("active", ch.dataset.credit === val);
@@ -1081,7 +1081,7 @@ function upsertMatchFromForm() {
     matchDate: $("matchDate").value,
     appliedStatus: "na",
     ticketAction: $("ticketAction").value,
-    creditCounts: $("creditCounts").value,
+    creditCredit: $("creditCredit").value,
     notes: $("notes").value.trim(),
     fixtureKey: ($("fixtureKey") ? $("fixtureKey").value.trim() : ""),
     amountPaid: parseAmount($("amountPaid").value),
@@ -1134,7 +1134,7 @@ function editMatch(id) {
   $("venue").value = m.venue || "H";
   $("competition").value = m.competition || "PL";
     $("ticketAction").value = m.ticketAction || "used";
-  setCreditChip(m.creditCounts || "unsure");
+  setCreditChip(m.creditCredit || "unsure");
   $("notes").value = m.notes || "";
   $("amountPaid").value = (m.amountPaid ?? "");
 
@@ -1186,7 +1186,7 @@ function exportCSV() {
 
   const header = [
     "season","opponent","venue","competition","matchDate",
-    "appliedStatus","ticketAction","creditCounts","amountPaid","notes","createdAt","updatedAt"
+    "appliedStatus","ticketAction","creditCredit","amountPaid","notes","createdAt","updatedAt"
   ];
 
   const lines = [header.join(",")];
@@ -1199,7 +1199,7 @@ function exportCSV() {
       m.matchDate,
       m.appliedStatus,
       m.ticketAction,
-      m.creditCounts,
+      m.creditCredit,
       m.amountPaid,
       m.notes,
       m.createdAt,
@@ -1324,7 +1324,7 @@ function bindEvents() {
   });
 
   $("ticketAction").addEventListener("change", (e) => {
-    const cc = $("creditCounts");
+    const cc = $("creditCredit");
     const current = cc ? cc.value : "unsure";
     if (current === "unsure") {
       setCreditChip(defaultCreditFromAction(e.target.value));
