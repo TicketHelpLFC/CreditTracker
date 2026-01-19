@@ -356,7 +356,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
         </div>
 
         <div class="fieldLabel" style="margin-top:10px;">AutoCup (HOME only — Away credits still tracked)</div>
-<div class="hint" style="margin-top:10px;">Enter names below. You can also set AutoCup per account (defaults pre-filled).</div>
+<div class="hint" style="margin-top:10px;">Enter names below. AutoCup is saved per account *and per season*.</div>
         <div id="setupNames" class="list" style="margin-top:10px;"></div>
 
         <div class="row gap wrap" style="margin-top:14px;">
@@ -583,6 +583,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
 
 
 
+
 /* Inlined app script (single-file build) */
 
 /* Inlined app script (single-file build) */
@@ -726,6 +727,22 @@ function load() {
     };
   }
 
+
+  // Migrate legacy autoCup -> per-season map (current season only)
+  try{
+    const sid = state.data.activeSeasonId || gen.activeSeasonId;
+    for(const acc of (state.data.accounts || [])){
+      if (!acc.autoCupBySeason) {
+        const legacy = acc.autoCup || {LC:false, FAC:false, UCL:false};
+        acc.autoCupBySeason = {};
+        acc.autoCupBySeason[sid] = { LC: !!legacy.LC, FAC: !!legacy.FAC, UCL: !!legacy.UCL };
+      } else if (!acc.autoCupBySeason[sid] && acc.autoCup) {
+        const legacy = acc.autoCup;
+        acc.autoCupBySeason[sid] = { LC: !!legacy.LC, FAC: !!legacy.FAC, UCL: !!legacy.UCL };
+      }
+    }
+  }catch(e){}
+
   save();
 }
 
@@ -736,6 +753,31 @@ function save() {
 function activeSeasonId() {
   return state.data.activeSeasonId;
 }
+
+function getAutoCupForSeason(acc, seasonId){
+  const sid = seasonId || activeSeasonId();
+  if (!acc) return {LC:false, FAC:false, UCL:false};
+  if (acc.autoCupBySeason && acc.autoCupBySeason[sid]) {
+    const v = acc.autoCupBySeason[sid] || {};
+    return { LC: !!v.LC, FAC: !!v.FAC, UCL: !!v.UCL };
+  }
+  // Backward compatibility
+  const legacy = acc.autoCup || {};
+  return { LC: !!legacy.LC, FAC: !!legacy.FAC, UCL: !!legacy.UCL };
+}
+
+function setAutoCupForSeason(acc, seasonId, value){
+  if(!acc) return;
+  const sid = seasonId || activeSeasonId();
+  if(!acc.autoCupBySeason) acc.autoCupBySeason = {};
+  acc.autoCupBySeason[sid] = {
+    LC: !!value.LC,
+    FAC: !!value.FAC,
+    UCL: !!value.UCL
+  };
+}
+
+
 
 function activeAccountId() {
   return state.data.activeAccountId;
@@ -927,7 +969,7 @@ function renderDashboard() {
 
   // Competition breakdown table
   const acc = state.data.accounts.find(a => a.id === activeAccountId());
-  const autoCup = (acc && acc.autoCup) ? acc.autoCup : {LC:false,FAC:false,UCL:false};
+  const autoCup = getAutoCupForSeason(acc, activeSeasonId());
   const breakdown = computeBreakdownByCompetition(activeSeasonId());
   const labels = { PL: "Premier League", UCL: "UCL", FAC: "FA Cup", LC: "League Cup", OTHER: "Other" };
   const table = document.createElement("table");
@@ -1554,7 +1596,7 @@ function saveSetup() {
       UCL: !!$("setupAccUCL_" + i)?.checked
     };
 
-    const acc = createAccount(name, autoCup);
+    const acc = createAccount(name, autoCup, season);
     createdIds.push(acc.id);
   }
 
@@ -1576,10 +1618,20 @@ function saveSetup() {
 
 
 
-function createAccount(name, autoCup={LC:false, FAC:false, UCL:false}) {
+function createAccount(name, autoCup={LC:false, FAC:false, UCL:false}, seasonId=null) {
+  const sid = seasonId || activeSeasonId();
   const acc = {
     id: uid(),
     name: name.trim(),
+    // Per-season AutoCup settings
+    autoCupBySeason: {
+      [sid]: {
+        LC: !!autoCup.LC,
+        FAC: !!autoCup.FAC,
+        UCL: !!autoCup.UCL
+      }
+    },
+    // Legacy field (kept for backward-compat / export)
     autoCup: {
       LC: !!autoCup.LC,
       FAC: !!autoCup.FAC,
@@ -1942,10 +1994,12 @@ function editActiveAccount(){
   acc.name = (newName || "").trim() || acc.name;
 
   // Autocup toggles (per account)
-  const ac = acc.autoCup || {LC:false,FAC:false,UCL:false};
-  const lc = confirm("AutoCup (HOME) — League Cup?\nOK = Yes, Cancel = No");
-  const fac = confirm("AutoCup (HOME) — FA Cup?\nOK = Yes, Cancel = No");
-  const ucl = confirm("AutoCup (HOME) — Champions League?\nOK = Yes, Cancel = No");
+  const ac = getAutoCupForSeason(acc, activeSeasonId());
+  const seasonTxt = seasonLabel(activeSeasonId());
+  const lc = confirm(`AutoCup (HOME) — League Cup?\nSeason: ${seasonTxt}\n\nOK = Yes, Cancel = No`);
+  const fac = confirm(`AutoCup (HOME) — FA Cup?\nSeason: ${seasonTxt}\n\nOK = Yes, Cancel = No`);
+  const ucl = confirm(`AutoCup (HOME) — Champions League?\nSeason: ${seasonTxt}\n\nOK = Yes, Cancel = No`);
+  setAutoCupForSeason(acc, activeSeasonId(), {LC:lc, FAC:fac, UCL:ucl});
   acc.autoCup = {LC:lc, FAC:fac, UCL:ucl};
 
   save();
@@ -1975,6 +2029,7 @@ function deleteActiveAccount(){
   renderAll();
   showToast("Account deleted");
 }
+
 
 
 
