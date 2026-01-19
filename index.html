@@ -167,6 +167,19 @@ body{
 
 .sep{border:0; height:1px; background:var(--border); margin:14px 0}
 
+.modal{
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:0;
+  background:transparent;
+  width:min(720px, calc(100vw - 20px));
+}
+.modal::backdrop{background:rgba(0,0,0,.55)}
+.modalInner{
+  background:var(--card);
+  border-radius:16px;
+  padding:14px;
+}
 .toggleRow{margin:10px 0}
 .toggle span{margin-left:8px}
 
@@ -237,39 +250,6 @@ body{
   }
   .acctField{ flex:1; }
 }
-
-/* Settings modal (centered, fixed height + scroll) */
-dialog.modal{
-  border:none;
-  padding:0;
-  background: var(--card);
-  color: var(--text);
-  border-radius:18px;
-  width:min(560px, 94vw);
-  max-height:90vh;
-  overflow:hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,.55);
-}
-dialog.modal::backdrop{
-  background: rgba(0,0,0,.72);
-}
-.modalInner{
-  padding:18px;
-  max-height:90vh;
-  overflow-y:auto;
-  color: var(--text);
-}
-
-/* Force all modal text to white */
-dialog.modal, dialog.modal *{
-  color: var(--text) !important;
-}
-dialog.modal .hint{
-  opacity:.9;
-}
-dialog.modal input, dialog.modal select, dialog.modal textarea{
-  color: var(--text) !important;
-}
 </style>
 </head>
 <body>
@@ -306,8 +286,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
       <div class="acctBarActions">
         <button type="button" id="btnEditAccount" class="btn sm">✏️ Edit</button>
         <button type="button" id="btnDeleteAccount" class="btn danger sm">🗑️ Delete</button>
-        <button id="btnSettings" class="btn ghost sm" aria-label="Settings">⚙️ Settings</button>
-      </div>
+        </div>
     </section>
 
     <!-- Views -->
@@ -362,6 +341,20 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
         </div>
         <div id="compBreakdown" class="breakdown"></div>
       </section>
+
+
+<section class="card">
+  <div class="label">📦 Backups</div>
+  <div class="row gap wrap">
+    <button id="btnExportJSON" class="btn">📤 Export JSON</button>
+    <button id="btnExportCSV" class="btn">📤 Export CSV</button>
+    <label class="btn fileBtn">
+      📥 Import JSON
+      <input id="importFile" type="file" accept="application/json" hidden />
+    </label>
+  </div>
+  <div class="hint">“JSON” is best for restoring exactly. “CSV” is for spreadsheets.</div>
+</section>
 </section>
 
     <!-- Matches -->
@@ -496,71 +489,14 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
     </section>
 
     <!-- Settings modal -->
-    <dialog id="settingsModal" class="modal">
-      <div class="modalInner">
-        <div class="row space-between">
-          <div class="label">⚙️ Rules & Settings</div>
-          <button id="btnCloseSettings" class="btn ghost">✖️</button>
-        </div>
-
-        <div class="hint">These toggles only affect defaults & hints (your data is still editable).</div>
-
-        <div class="toggleRow">
-          <label class="toggle">
-            <input type="checkbox" id="ruleForwardedNoCredit" checked />
-            <span>Forwarded = No credit (default)</span>
-          </label>
-        </div>
-        <div class="toggleRow">
-          <label class="toggle">
-            <input type="checkbox" id="ruleReturnedNoCredit" checked />
-            <span>Returned = No credit (default)</span>
-          </label>
-        </div>
-        <div class="toggleRow">
-          <label class="toggle">
-            <input type="checkbox" id="ruleHospitalityNoCredit" checked />
-            <span>Hospitality = No credit (default)</span>
-          </label>
-        </div>
-
-        <hr class="sep"/>
-
-        <div class="label">📦 Backups</div>
-        <div class="row gap wrap">
-          <button id="btnExportJSON2" class="btn">📤 Export JSON</button>
-          <button id="btnExportCSV2" class="btn">📤 Export CSV</button>
-          <label class="btn fileBtn">
-            📥 Import JSON
-            <input id="importFile2" type="file" accept="application/json" hidden />
-          </label>
-        </div>
-
-        <div class="hint">
-          “JSON” is best for restoring exactly. “CSV” is for spreadsheets.
-        </div>
-      </div>
-    
-      <hr class="sep" />
-      
-        <div class="row gap wrap" style="margin-top:8px;">
-          <button id="btnExportJSON" class="btn ghost">📤 Export JSON</button>
-          <button id="btnExportCSV" class="btn ghost">📤 Export CSV</button>
-          <label class="btn ghost fileBtn">
-            📥 Import JSON
-            <input id="importFile" type="file" accept="application/json" hidden />
-          </label>
-        </div>
-        <div class="hint" style="margin-top:6px;">Export/Import is stored locally on this device.</div>
-      </div>
-</dialog>
-  </main>
+    </main>
 
   <div class="hint" style="text-align:center;margin:20px 0;">Build: 3.6.24 (Single-file + PWA)</div>
 
 <script type="application/json" id="fixturesData">[{"id": "2025-08-15-pl-bournemouth-h-2000", "season": "25/26", "date": "2025-08-15", "time": "20:00", "datetime_utc": "2025-08-15T20:00:00Z", "competition": "PL", "opponent": "Bournemouth", "venue": "H", "location": ""}, {"id": "2025-08-23-pl-newcastleunited-a-1500", "season": "25/26", "date": "2025-08-23", "time": "15:00", "datetime_utc": "2025-08-23T15:00:00Z", "competition": "PL", "opponent": "Newcastle United", "venue": "A", "location": ""}, {"id": "2025-08-30-pl-arsenal-h-1500", "season": "25/26", "date": "2025-08-30", "time": "15:00", "datetime_utc": "2025-08-30T15:00:00Z", "competition": "PL", "opponent": "Arsenal", "venue": "H", "location": ""}, {"id": "2025-09-13-pl-burnley-a-1500", "season": "25/26", "date": "2025-09-13", "time": "15:00", "datetime_utc": "2025-09-13T15:00:00Z", "competition": "PL", "opponent": "Burnley", "venue": "A", "location": ""}, {"id": "2025-09-20-pl-everton-h-1500", "season": "25/26", "date": "2025-09-20", "time": "15:00", "datetime_utc": "2025-09-20T15:00:00Z", "competition": "PL", "opponent": "Everton", "venue": "H", "location": ""}, {"id": "2025-09-27-pl-crystalpalace-a-1500", "season": "25/26", "date": "2025-09-27", "time": "15:00", "datetime_utc": "2025-09-27T15:00:00Z", "competition": "PL", "opponent": "Crystal Palace", "venue": "A", "location": ""}, {"id": "2025-10-04-pl-chelsea-a-1500", "season": "25/26", "date": "2025-10-04", "time": "15:00", "datetime_utc": "2025-10-04T15:00:00Z", "competition": "PL", "opponent": "Chelsea", "venue": "A", "location": ""}, {"id": "2025-10-18-pl-manchesterunited-h-1500", "season": "25/26", "date": "2025-10-18", "time": "15:00", "datetime_utc": "2025-10-18T15:00:00Z", "competition": "PL", "opponent": "Manchester United", "venue": "H", "location": ""}, {"id": "2025-10-25-pl-brentford-a-1500", "season": "25/26", "date": "2025-10-25", "time": "15:00", "datetime_utc": "2025-10-25T15:00:00Z", "competition": "PL", "opponent": "Brentford", "venue": "A", "location": ""}, {"id": "2025-11-01-pl-astonvilla-h-1500", "season": "25/26", "date": "2025-11-01", "time": "15:00", "datetime_utc": "2025-11-01T15:00:00Z", "competition": "PL", "opponent": "Aston Villa", "venue": "H", "location": ""}, {"id": "2025-11-08-pl-manchestercity-a-1500", "season": "25/26", "date": "2025-11-08", "time": "15:00", "datetime_utc": "2025-11-08T15:00:00Z", "competition": "PL", "opponent": "Manchester City", "venue": "A", "location": ""}, {"id": "2025-11-22-pl-nottinghamforest-h-1500", "season": "25/26", "date": "2025-11-22", "time": "15:00", "datetime_utc": "2025-11-22T15:00:00Z", "competition": "PL", "opponent": "Nottingham Forest", "venue": "H", "location": ""}, {"id": "2025-11-29-pl-westhamunited-a-1500", "season": "25/26", "date": "2025-11-29", "time": "15:00", "datetime_utc": "2025-11-29T15:00:00Z", "competition": "PL", "opponent": "West Ham United", "venue": "A", "location": ""}, {"id": "2025-12-03-pl-sunderland-h-2000", "season": "25/26", "date": "2025-12-03", "time": "20:00", "datetime_utc": "2025-12-03T20:00:00Z", "competition": "PL", "opponent": "Sunderland", "venue": "H", "location": ""}, {"id": "2025-12-06-pl-leedsunited-a-1500", "season": "25/26", "date": "2025-12-06", "time": "15:00", "datetime_utc": "2025-12-06T15:00:00Z", "competition": "PL", "opponent": "Leeds United", "venue": "A", "location": ""}, {"id": "2025-12-13-pl-brightonhovealbion-h-1500", "season": "25/26", "date": "2025-12-13", "time": "15:00", "datetime_utc": "2025-12-13T15:00:00Z", "competition": "PL", "opponent": "Brighton & Hove Albion", "venue": "H", "location": ""}, {"id": "2025-12-20-pl-tottenhamhotspur-a-1500", "season": "25/26", "date": "2025-12-20", "time": "15:00", "datetime_utc": "2025-12-20T15:00:00Z", "competition": "PL", "opponent": "Tottenham Hotspur", "venue": "A", "location": ""}, {"id": "2025-12-27-pl-wolverhamptonwanderers-h-1500", "season": "25/26", "date": "2025-12-27", "time": "15:00", "datetime_utc": "2025-12-27T15:00:00Z", "competition": "PL", "opponent": "Wolverhampton Wanderers", "venue": "H", "location": ""}, {"id": "2025-12-30-pl-leedsunited-h-2000", "season": "25/26", "date": "2025-12-30", "time": "20:00", "datetime_utc": "2025-12-30T20:00:00Z", "competition": "PL", "opponent": "Leeds United", "venue": "H", "location": ""}, {"id": "2026-01-08-pl-arsenal-a", "season": "25/26", "datetime_utc": "2026-01-08T00:00:00+00:00", "date": "2026-01-08", "time": "00:00", "competition": "PL", "opponent": "Arsenal", "venue": "A", "location": "Emirates Stadium\\, London"}, {"id": "2026-01-12-fa-barnsley-h", "season": "25/26", "datetime_utc": "2026-01-12T00:00:00+00:00", "date": "2026-01-12", "time": "00:00", "competition": "FA", "opponent": "Barnsley", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-17-pl-burnley-h", "season": "25/26", "datetime_utc": "2026-01-17T00:00:00+00:00", "date": "2026-01-17", "time": "00:00", "competition": "PL", "opponent": "Burnley", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-18-other-welcometoliverpoolfc!-h", "season": "25/26", "datetime_utc": "2026-01-18T00:00:00+00:00", "date": "2026-01-18", "time": "00:00", "competition": "OTHER", "opponent": "Welcome to Liverpool FC!", "venue": "H", "location": "Proudly powered by ECAL"}, {"id": "2026-01-21-ucl-marseille-a", "season": "25/26", "datetime_utc": "2026-01-21T00:00:00+00:00", "date": "2026-01-21", "time": "00:00", "competition": "UCL", "opponent": "Marseille", "venue": "A", "location": "Orange Vélodrome\\, Marseille"}, {"id": "2026-01-24-pl-bournemouth-a", "season": "25/26", "datetime_utc": "2026-01-24T00:00:00+00:00", "date": "2026-01-24", "time": "00:00", "competition": "PL", "opponent": "Bournemouth", "venue": "A", "location": "Vitality Stadium\\, Bournemouth"}, {"id": "2026-01-28-ucl-qarabag-h", "season": "25/26", "datetime_utc": "2026-01-28T00:00:00+00:00", "date": "2026-01-28", "time": "00:00", "competition": "UCL", "opponent": "Qarabag", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-01-31-pl-newcastleunited-h", "season": "25/26", "datetime_utc": "2026-01-31T00:00:00+00:00", "date": "2026-01-31", "time": "00:00", "competition": "PL", "opponent": "Newcastle United", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-08-pl-manchestercity-h", "season": "25/26", "datetime_utc": "2026-02-08T00:00:00+00:00", "date": "2026-02-08", "time": "00:00", "competition": "PL", "opponent": "Manchester City", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-11-pl-sunderland-a", "season": "25/26", "datetime_utc": "2026-02-11T00:00:00+00:00", "date": "2026-02-11", "time": "00:00", "competition": "PL", "opponent": "Sunderland", "venue": "A", "location": "Stadium of Light\\, Sunderland"}, {"id": "2026-02-14-fa-brightonandhovealbion-h", "season": "25/26", "datetime_utc": "2026-02-14T00:00:00+00:00", "date": "2026-02-14", "time": "00:00", "competition": "FA", "opponent": "Brighton and Hove Albion", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-02-21-pl-nottinghamforest-a", "season": "25/26", "datetime_utc": "2026-02-21T00:00:00+00:00", "date": "2026-02-21", "time": "00:00", "competition": "PL", "opponent": "Nottingham Forest", "venue": "A", "location": "The City Ground\\, Nottingham"}, {"id": "2026-02-28-pl-westhamunited-h", "season": "25/26", "datetime_utc": "2026-02-28T00:00:00+00:00", "date": "2026-02-28", "time": "00:00", "competition": "PL", "opponent": "West Ham United", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-03-04-pl-wolverhamptonwanderers-a", "season": "25/26", "datetime_utc": "2026-03-04T00:00:00+00:00", "date": "2026-03-04", "time": "00:00", "competition": "PL", "opponent": "Wolverhampton Wanderers", "venue": "A", "location": "Molineux Stadium\\, Wolverhampton"}, {"id": "2026-03-14-pl-tottenhamhotspur-h", "season": "25/26", "datetime_utc": "2026-03-14T00:00:00+00:00", "date": "2026-03-14", "time": "00:00", "competition": "PL", "opponent": "Tottenham Hotspur", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-03-21-pl-brightonandhovealbion-a", "season": "25/26", "datetime_utc": "2026-03-21T00:00:00+00:00", "date": "2026-03-21", "time": "00:00", "competition": "PL", "opponent": "Brighton and Hove Albion", "venue": "A", "location": "American Express Stadium\\, Falmer"}, {"id": "2026-04-11-pl-fulham-h", "season": "25/26", "datetime_utc": "2026-04-11T00:00:00+00:00", "date": "2026-04-11", "time": "00:00", "competition": "PL", "opponent": "Fulham", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-04-18-pl-everton-a", "season": "25/26", "datetime_utc": "2026-04-18T00:00:00+00:00", "date": "2026-04-18", "time": "00:00", "competition": "PL", "opponent": "Everton", "venue": "A", "location": "Hill Dickinson Stadium\\, Liverpool"}, {"id": "2026-04-25-pl-crystalpalace-h", "season": "25/26", "datetime_utc": "2026-04-25T00:00:00+00:00", "date": "2026-04-25", "time": "00:00", "competition": "PL", "opponent": "Crystal Palace", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-05-02-pl-manchesterunited-a", "season": "25/26", "datetime_utc": "2026-05-02T00:00:00+00:00", "date": "2026-05-02", "time": "00:00", "competition": "PL", "opponent": "Manchester United", "venue": "A", "location": "Old Trafford\\, Manchester"}, {"id": "2026-05-09-pl-chelsea-h", "season": "25/26", "datetime_utc": "2026-05-09T00:00:00+00:00", "date": "2026-05-09", "time": "00:00", "competition": "PL", "opponent": "Chelsea", "venue": "H", "location": "Anfield\\, Liverpool"}, {"id": "2026-05-17-pl-astonvilla-a", "season": "25/26", "datetime_utc": "2026-05-17T00:00:00+00:00", "date": "2026-05-17", "time": "00:00", "competition": "PL", "opponent": "Aston Villa", "venue": "A", "location": "Villa Park\\, Birmingham"}, {"id": "2026-05-24-pl-brentford-h", "season": "25/26", "datetime_utc": "2026-05-24T00:00:00+00:00", "date": "2026-05-24", "time": "00:00", "competition": "PL", "opponent": "Brentford", "venue": "H", "location": "Anfield\\, Liverpool"}]</script>
 
 <script>
+
 
 
 /* Inlined app script (single-file build) */
@@ -1247,36 +1183,6 @@ function importJSONFile(file) {
   reader.readAsText(file);
 }
 
-function openSettings() {
-  $("settingsModal").classList.remove("hidden");
-  $("ruleForwardedNoCredit").checked = !!state.data.settings.ruleForwardedNoCredit;
-  $("ruleReturnedNoCredit").checked = !!state.data.settings.ruleReturnedNoCredit;
-  $("ruleHospitalityNoCredit").checked = !!state.data.settings.ruleHospitalityNoCredit;
-  const dlg = $("settingsModal");
-  if (dlg.showModal) { dlg.showModal(); } else { dlg.setAttribute("open",""); }
-}
-
-function closeSettings() {
-  const dlg = $("settingsModal");
-  try { dlg.close(); } catch(e) {}
-  dlg.classList.add("hidden");
-}
-
-function bindSettings() {
-  onEl("ruleForwardedNoCredit","change",(e) => {
-    state.data.settings.ruleForwardedNoCredit = e.target.checked;
-    save();
-  });
-  onEl("ruleReturnedNoCredit","change",(e) => {
-    state.data.settings.ruleReturnedNoCredit = e.target.checked;
-    save();
-  });
-  onEl("ruleHospitalityNoCredit","change",(e) => {
-    state.data.settings.ruleHospitalityNoCredit = e.target.checked;
-    save();
-  });
-}
-
 function addSeason() {
   const label = prompt("Season label (e.g. 2026/27):");
   if (!label) return;
@@ -1414,25 +1320,17 @@ const ce=document.getElementById("fixturesCount"); if(ce) ce.textContent = `Impo
 
   $("btnExportJSON").addEventListener("click", exportJSON);
   $("btnExportCSV").addEventListener("click", exportCSV);
-  $("btnExportJSON2").addEventListener("click", exportJSON);
-  $("btnExportCSV2").addEventListener("click", exportCSV);
-
-  $("importFile").addEventListener("change", (e) => {
+$("importFile").addEventListener("change", (e) => {
     const f = e.target.files?.[0];
     if (f) importJSONFile(f);
     e.target.value = "";
   });
-  $("importFile2").addEventListener("change", (e) => {
-    const f = e.target.files?.[0];
-    if (f) importJSONFile(f);
-    e.target.value = "";
+e.target.value = "";
   });
 
   onEl("btnSettings","click", openSettings);
   onEl("btnCloseSettings","click", closeSettings);
-  bindSettings();
-
-  // Setup screen
+// Setup screen
   onEl("setupCount","input", renderSetupNames);
   onEl("btnSetupCreate","click", () => { try { saveSetup(); } catch(e){ alert("Setup error: " + (e && e.message ? e.message : e)); console.error(e); } });
 }
@@ -1951,6 +1849,7 @@ function deleteActiveAccount(){
   renderAll();
   showToast("Account deleted");
 }
+
 
 
 </script>
