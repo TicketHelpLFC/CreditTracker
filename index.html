@@ -235,6 +235,25 @@ body{
 
 .brandLogo{width:34px;height:34px;border-radius:10px;display:block}
 
+
+/* Tabs */
+.tabs{ display:flex; gap:8px; margin:10px 0 14px; }
+.tab{
+  flex:1;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  padding:10px 10px;
+  font-weight:700;
+}
+.tab.active{ border-color: rgba(227,27,35,.6); background: rgba(227,27,35,.12); }
+/* Views */
+.view{ margin-bottom:18px; }
+.hidden{ display:none !important; }
+
+.tab{ appearance:none; -webkit-appearance:none; }
+
 </style>
 </head>
 <body>
@@ -1461,8 +1480,7 @@ function init() {
   if (!state.data.accounts || state.data.accounts.length === 0) {
     setView("setup");
     renderSetupNames();
-  
-}
+  }
 }
 
 /* ---------- Accounts + Setup ---------- */
