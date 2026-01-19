@@ -1204,41 +1204,15 @@ function importJSONFile(file) {
 }
 
 function openSettings(){
-  const dlg = $("settingsModal");
-  if(!dlg) return;
-
-  $("settingsModal").classList.remove("hidden");
-  $("ruleForwardedNoCredit").checked = !!state.data.settings.ruleForwardedNoCredit;
-  $("ruleReturnedNoCredit").checked = !!state.data.settings.ruleReturnedNoCredit;
-  $("ruleHospitalityNoCredit").checked = !!state.data.settings.ruleHospitalityNoCredit;
-  const dlg = $("settingsModal");
-  if (dlg.showModal) { dlg.showModal(); } else { dlg.setAttribute("open",""); }
+  return;
 }
 
 function closeSettings(){
-  const dlg = $("settingsModal");
-  if(!dlg) return;
-
-  const dlg = $("settingsModal");
-  try { dlg.close(); } catch(e) {}
-  dlg.classList.add("hidden");
+  return;
 }
 
 function bindSettings(){
-  const dlg = $("settingsModal");
-  if(!dlg) return;
-onEl("ruleForwardedNoCredit","change",(e) => {
-    state.data.settings.ruleForwardedNoCredit = e.target.checked;
-    save();
-  });
-  onEl("ruleReturnedNoCredit","change",(e) => {
-    state.data.settings.ruleReturnedNoCredit = e.target.checked;
-    save();
-  });
-  onEl("ruleHospitalityNoCredit","change",(e) => {
-    state.data.settings.ruleHospitalityNoCredit = e.target.checked;
-    save();
-  });
+  return;
 }
 
 function addSeason() {
