@@ -519,6 +519,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
 
 
 
+
 /* Inlined app script (single-file build) */
 
 /* Inlined app script (single-file build) */
@@ -633,12 +634,36 @@ function load() {
     return;
   }
   try {
-    state.data = JSON.parse(raw);
-    if (!state.data || !state.data.seasons) throw new Error("Bad data");
+    state.data = JSON.parse(raw) || {};
   } catch {
-    state.data = defaultData();
-    save();
+    state.data = {};
   }
+
+  // Repair / migrate older or partial data
+  const gen = generateSeasons();
+  if (!Array.isArray(state.data.seasons) || state.data.seasons.length === 0) {
+    state.data.seasons = gen.seasons;
+  }
+  if (!state.data.activeSeasonId) {
+    state.data.activeSeasonId = gen.activeSeasonId;
+  } else {
+    // Ensure activeSeasonId is valid
+    const ok = state.data.seasons.some(s => s.id === state.data.activeSeasonId);
+    if (!ok) state.data.activeSeasonId = gen.activeSeasonId;
+  }
+
+  if (!Array.isArray(state.data.accounts)) state.data.accounts = [];
+  if (!("activeAccountId" in state.data)) state.data.activeAccountId = null;
+  if (!Array.isArray(state.data.matches)) state.data.matches = [];
+  if (!state.data.settings) {
+    state.data.settings = {
+      ruleForwardedNoCredit: true,
+      ruleReturnedNoCredit: true,
+      ruleHospitalityNoCredit: true
+    };
+  }
+
+  save();
 }
 
 function save() {
@@ -1889,6 +1914,7 @@ function deleteActiveAccount(){
   renderAll();
   showToast("Account deleted");
 }
+
 
 
 
