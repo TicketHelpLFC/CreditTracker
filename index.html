@@ -59,6 +59,7 @@ body{
   margin-bottom:12px;
 }
 
+  
   /* Top bar layout */
   .topbar{ padding:14px; }
   .topbarGrid{
@@ -68,19 +69,32 @@ body{
     align-items:end;
   }
   .topbarField .label{ margin-bottom:6px; }
-  .topbarActions{
+
+  .topbarActionsRow{ margin-top:12px; }
+  .topbarActionsRow .btn.full{ width:100%; }
+
+  .topbarActionsSmall{
     display:flex;
     gap:10px;
     flex-wrap:wrap;
-    margin-top:12px;
-    justify-content:space-between;
+    margin-top:10px;
+    align-items:center;
   }
-  .topbarActions .btn{ flex:1 1 auto; }
-  .topbarActions .btn.ghost{ flex:0 0 auto; padding-left:14px; padding-right:14px; }
+
+  /* Smaller buttons for cramped top area */
+  .btn.sm{
+    padding:8px 10px;
+    font-size:13px;
+    border-radius:12px;
+  }
+  .btn.ghost.sm{ padding:8px 10px; }
 
   @media (max-width: 520px){
     .topbarGrid{ grid-template-columns:1fr; }
-    .topbarActions{ gap:8px; }
+    .topbarActionsSmall{ gap:8px; }
+    .topbarActionsSmall .btn.sm{ flex:1 1 30%; }
+  }
+.topbarActions{ gap:8px; }
     .topbarActions .btn{ flex:1 1 48%; }
     .topbarActions .btn.ghost{ flex:0 0 auto; }
   }
@@ -195,19 +209,9 @@ body{
 
 .sep{border:0; height:1px; background:var(--border); margin:14px 0}
 
-.modal{
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:0;
-  background:transparent;
-  width:min(720px, calc(100vw - 20px));
-}
+.modal{ border:none; background:transparent; padding:0; }
 .modal::backdrop{background:rgba(0,0,0,.55)}
-.modalInner{
-  background:var(--card);
-  border-radius:16px;
-  padding:14px;
-}
+.modalInner{ background: var(--card); border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:16px; width:min(560px, 94vw); max-height:80vh; overflow:auto; }
 .toggleRow{margin:10px 0}
 .toggle span{margin-left:8px}
 
@@ -276,11 +280,14 @@ body{
         </div>
       </div>
 
-      <div class="topbarActions">
-        <button type="button" id="btnEditAccount" class="btn">✏️ Edit</button>
-        <button type="button" id="btnDeleteAccount" class="btn danger">🗑️ Delete</button>
-        <button id="btnAddAccount" class="btn">➕ Add account</button>
-        <button id="btnSettings" class="btn ghost" aria-label="Settings">⚙️</button>
+      <div class="topbarActionsRow">
+        <button id="btnAddAccount" class="btn full">➕ Add account</button>
+      </div>
+
+      <div class="topbarActionsSmall">
+        <button type="button" id="btnEditAccount" class="btn sm">✏️ Edit</button>
+        <button type="button" id="btnDeleteAccount" class="btn danger sm">🗑️ Delete</button>
+        <button id="btnSettings" class="btn ghost sm" aria-label="Settings">⚙️ Settings</button>
       </div>
     </section>
 
@@ -441,7 +448,7 @@ body{
           <div>
             <div class="fieldLabel">Credit outcome</div>
             <div class="chips" role="group" aria-label="Credit outcome">
-<input type="hidden" id="creditCounts" value="unsure">
+<input type="hidden" id="creditCredits" value="unsure">
 
               <button type="button" class="chip" data-credit="yes">🟢 Credit</button>
               <button type="button" class="chip" data-credit="no">🔴 No credit</button>
@@ -742,7 +749,7 @@ function getSeasonMatches(seasonId) {
 }
 
 function creditIsCounted(match) {
-  return match.creditCounts === "yes";
+  return match.creditCredits === "yes";
 }
 
 function computeSpend(seasonId) {
@@ -760,7 +767,7 @@ function computeBreakdownByCompetition(seasonId) {
   for (const c of comps) out[c] = { H: 0, A: 0 };
   for (const m of matches) {
     const c = out[m.competition] ? m.competition : "OTHER";
-    if (m.creditCounts === "yes") {
+    if (m.creditCredits === "yes") {
       if (m.venue === "H") out[c].H += 1;
       if (m.venue === "A") out[c].A += 1;
     }
@@ -802,8 +809,8 @@ function formatMeta(m) {
 }
 
 function badgeForCredit(m) {
-  if (m.creditCounts === "yes") return { text: "🟢 Counts", cls: "good" };
-  if (m.creditCounts === "no") return { text: "🔴 No credit", cls: "bad" };
+  if (m.creditCredits === "yes") return { text: "🟢 Credits", cls: "good" };
+  if (m.creditCredits === "no") return { text: "🔴 No credit", cls: "bad" };
   return { text: "ℹ️ Unsure", cls: "neutral" };
 }
 
@@ -1048,7 +1055,7 @@ function renderMatches() {
     .filter(m => {
       if (v && m.venue !== v) return false;
       if (c && m.competition !== c) return false;
-      if (cr && m.creditCounts !== cr) return false;
+      if (cr && m.creditCredits !== cr) return false;
       if (q) {
         const hay = `${m.opponent} ${m.notes || ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -1088,7 +1095,7 @@ function clearForm() {
 }
 
 function setCreditChip(val) {
-  const cc = $("creditCounts");
+  const cc = $("creditCredits");
   if (cc) cc.value = val;
   document.querySelectorAll(".chip").forEach(ch => {
     ch.classList.toggle("active", ch.dataset.credit === val);
@@ -1123,7 +1130,7 @@ function upsertMatchFromForm() {
     matchDate: $("matchDate").value,
     appliedStatus: "na",
     ticketAction: $("ticketAction").value,
-    creditCounts: $("creditCounts").value,
+    creditCredits: $("creditCredits").value,
     notes: $("notes").value.trim(),
     fixtureKey: ($("fixtureKey") ? $("fixtureKey").value.trim() : ""),
     amountPaid: parseAmount($("amountPaid").value),
@@ -1176,7 +1183,7 @@ function editMatch(id) {
   $("venue").value = m.venue || "H";
   $("competition").value = m.competition || "PL";
     $("ticketAction").value = m.ticketAction || "used";
-  setCreditChip(m.creditCounts || "unsure");
+  setCreditChip(m.creditCredits || "unsure");
   $("notes").value = m.notes || "";
   $("amountPaid").value = (m.amountPaid ?? "");
 
@@ -1228,7 +1235,7 @@ function exportCSV() {
 
   const header = [
     "season","opponent","venue","competition","matchDate",
-    "appliedStatus","ticketAction","creditCounts","amountPaid","notes","createdAt","updatedAt"
+    "appliedStatus","ticketAction","creditCredits","amountPaid","notes","createdAt","updatedAt"
   ];
 
   const lines = [header.join(",")];
@@ -1241,7 +1248,7 @@ function exportCSV() {
       m.matchDate,
       m.appliedStatus,
       m.ticketAction,
-      m.creditCounts,
+      m.creditCredits,
       m.amountPaid,
       m.notes,
       m.createdAt,
@@ -1367,7 +1374,7 @@ function bindEvents() {
   });
 
   $("ticketAction").addEventListener("change", (e) => {
-    const cc = $("creditCounts");
+    const cc = $("creditCredits");
     const current = cc ? cc.value : "unsure";
     if (current === "unsure") {
       setCreditChip(defaultCreditFromAction(e.target.value));
