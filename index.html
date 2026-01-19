@@ -167,19 +167,6 @@ body{
 
 .sep{border:0; height:1px; background:var(--border); margin:14px 0}
 
-.modal{
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:0;
-  background:transparent;
-  width:min(720px, calc(100vw - 20px));
-}
-.modal::backdrop{background:rgba(0,0,0,.55)}
-.modalInner{
-  background:var(--card);
-  border-radius:16px;
-  padding:14px;
-}
 .toggleRow{margin:10px 0}
 .toggle span{margin-left:8px}
 
@@ -249,6 +236,39 @@ body{
     gap:12px;
   }
   .acctField{ flex:1; }
+}
+
+/* Settings modal (centered, fixed height + scroll) */
+dialog.modal{
+  border:none;
+  padding:0;
+  background: var(--card);
+  color: var(--text);
+  border-radius:18px;
+  width:min(560px, 94vw);
+  max-height:90vh;
+  overflow:hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.55);
+}
+dialog.modal::backdrop{
+  background: rgba(0,0,0,.72);
+}
+.modalInner{
+  padding:18px;
+  max-height:90vh;
+  overflow-y:auto;
+  color: var(--text);
+}
+
+/* Force all modal text to white */
+dialog.modal, dialog.modal *{
+  color: var(--text) !important;
+}
+dialog.modal .hint{
+  opacity:.9;
+}
+dialog.modal input, dialog.modal select, dialog.modal textarea{
+  color: var(--text) !important;
 }
 </style>
 </head>
