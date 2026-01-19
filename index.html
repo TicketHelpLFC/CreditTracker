@@ -520,6 +520,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
 
 
 
+
 /* Inlined app script (single-file build) */
 
 /* Inlined app script (single-file build) */
@@ -1377,21 +1378,19 @@ const ce=document.getElementById("fixturesCount"); if(ce) ce.textContent = `Impo
 
   $("btnExportJSON").addEventListener("click", exportJSON);
   $("btnExportCSV").addEventListener("click", exportCSV);
-  $("btnExportJSON2").addEventListener("click", exportJSON);
-  $("btnExportCSV2").addEventListener("click", exportCSV);
-
-  $("importFile").addEventListener("change", (e) => {
+  onEl("btnExportJSON2","click", exportJSON);
+onEl("btnExportCSV2","click", exportCSV);
+$("importFile").addEventListener("change", (e) => {
     const f = e.target.files?.[0];
     if (f) importJSONFile(f);
     e.target.value = "";
   });
-  $("importFile2").addEventListener("change", (e) => {
+  onEl("importFile2","change",(e)=>{
     const f = e.target.files?.[0];
     if (f) importJSONFile(f);
     e.target.value = "";
   });
-
-  onEl("btnSettings","click", openSettings);
+onEl("btnSettings","click", openSettings);
   onEl("btnCloseSettings","click", closeSettings);
   bindSettings();
 
@@ -1914,6 +1913,7 @@ function deleteActiveAccount(){
   renderAll();
   showToast("Account deleted");
 }
+
 
 
 
