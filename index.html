@@ -218,6 +218,38 @@ body{
 
 .brandLogo{width:34px;height:34px;border-radius:10px;display:block}
 
+
+
+/* Account bar layout (mobile-first) */
+.acctBar{ padding:14px; }
+.acctBarFields{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.acctBarPrimary{ margin-top:14px; }
+.btn.full{ width:100%; }
+
+.acctBarActions{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+.btn.sm{
+  padding:8px 10px;
+  font-size:13px;
+  border-radius:12px;
+}
+.btn.ghost.sm{ padding:8px 10px; }
+
+@media (min-width: 720px){
+  .acctBarFields{
+    flex-direction:row;
+    gap:12px;
+  }
+  .acctField{ flex:1; }
+}
 </style>
 </head>
 <body>
@@ -234,24 +266,27 @@ body{
 
   <main class="container">
     <!-- Season bar -->
-    <section class="card row space-between">
-      <div class="row gap wrap">
-        <div>
+    <section class="card acctBar">
+      <div class="acctBarFields">
+        <div class="acctField">
           <div class="label">👤 Account</div>
           <select id="accountSelect" class="select"></select>
         </div>
-        <div class="row gap" style="margin-top:8px;">
-          <button type="button" id="btnEditAccount" class="btn">✏️ Edit</button>
-          <button type="button" id="btnDeleteAccount" class="btn danger">🗑️ Delete</button>
-        </div>
-        <div>
+
+        <div class="acctField">
           <div class="label">📅 Season</div>
           <select id="seasonSelect" class="select" data-role="season"></select>
         </div>
       </div>
-      <div class="row gap">
-        <button id="btnAddAccount" class="btn">➕ Add account to track</button>
-        <button id="btnSettings" class="btn ghost">⚙️</button>
+
+      <div class="acctBarPrimary">
+        <button id="btnAddAccount" class="btn full">➕ Add account to track</button>
+      </div>
+
+      <div class="acctBarActions">
+        <button type="button" id="btnEditAccount" class="btn sm">✏️ Edit</button>
+        <button type="button" id="btnDeleteAccount" class="btn danger sm">🗑️ Delete</button>
+        <button id="btnSettings" class="btn ghost sm" aria-label="Settings">⚙️ Settings</button>
       </div>
     </section>
 
