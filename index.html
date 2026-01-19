@@ -34,7 +34,7 @@ body{
   color:var(--text);
 }
 
-.topbar{
+.appHeader{
   position:sticky; top:0;
   display:flex; align-items:center; justify-content:space-between;
   padding:12px 14px;
@@ -61,77 +61,45 @@ body{
 
   
   /* Top bar layout */
-  .topbar{ padding:14px; }
-  .topbarGrid{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:12px;
-    align-items:end;
-  }
-  .topbarField .label{ margin-bottom:6px; }
+.topbar{ padding:14px; }
+.topbarGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:12px;
+  align-items:end;
+}
+.topbarField .label{ margin-bottom:6px; }
 
-  .topbarActionsRow{ margin-top:12px; }
-  .topbarActionsRow .btn.full{ width:100%; }
+.topbarActionsRow{ margin-top:12px; }
+.topbarActionsRow .btn.full{ width:100%; }
 
-  .topbarActionsSmall{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-top:10px;
-    align-items:center;
-  }
+.topbarActionsSmall{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:10px;
+  align-items:center;
+}
 
-  /* Smaller buttons for cramped top area */
-  .btn.sm{
-    padding:8px 10px;
-    font-size:13px;
-    border-radius:12px;
-  }
-  .btn.ghost.sm{ padding:8px 10px; }
+/* Smaller buttons for cramped top area */
+.btn.sm{
+  padding:8px 10px;
+  font-size:13px;
+  border-radius:12px;
+}
+.btn.ghost.sm{ padding:8px 10px; }
 
-  @media (max-width: 520px){
-    .topbarGrid{ grid-template-columns:1fr; }
-    .topbarActionsSmall{ gap:8px; }
+@media (max-width: 520px){
+  .topbarGrid{ grid-template-columns:1fr; }
+  .topbarActionsSmall{ gap:8px; }
+  .topbarActionsSmall .btn.sm{ flex:1 1 32%; }
+  .topbarActionsSmall .btn.sm:last-child{ flex:1 1 100%; }
+}
+
+.topbarActionsSmall{ gap:8px; }
     .topbarActionsSmall .btn.sm{ flex:1 1 30%; }
   }
-.topbarActions{ gap:8px; }
-    .topbarActions .btn{ flex:1 1 48%; }
-    .topbarActions .btn.ghost{ flex:0 0 auto; }
-  }
 
-
-
-.row{display:flex; align-items:center}
-.space-between{justify-content:space-between}
-.gap{gap:10px}
-.wrap{flex-wrap:wrap}
-.grow{flex:1}
-
-.label{font-weight:700; margin-bottom:6px}
-.hint{color:var(--muted); font-size:12px; line-height:1.35}
-
-.tabs{
-  display:flex; gap:8px;
-  margin:10px 0 14px;
-}
-.tab{
-  flex:1;
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:transparent;
-  color:var(--text);
-  padding:10px 10px;
-  font-weight:700;
-}
-.tab.active{border-color:rgba(227,27,35,.6); background:rgba(227,27,35,.12)}
-
-.grid3{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px}
-.grid2{display:grid; grid-template-columns:repeat(2, 1fr); gap:10px}
-
-@media (max-width:720px){
-  .grid3{grid-template-columns:1fr}
-  .grid2{grid-template-columns:1fr}
-}
 
 .statTitle{color:var(--muted); font-size:12px; margin-bottom:6px}
 .statValue{font-size:34px; font-weight:900}
@@ -209,12 +177,29 @@ body{
 
 .sep{border:0; height:1px; background:var(--border); margin:14px 0}
 
-.modal{ border:none; background:transparent; padding:0; }
-.modal::backdrop{background:rgba(0,0,0,.55)}
-.modalInner{ background: var(--card); border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:16px; width:min(560px, 94vw); max-height:80vh; overflow:auto; }
+.modal{
+  border:none;
+  background: var(--card);
+  color: var(--text);
+  padding:0;
+  border-radius:18px;
+  width:min(560px, 94vw);
+  max-height:85vh;
+}
+.modal::backdrop{ background: rgba(0,0,0,.7); }
+.modalInner{
+  padding:18px;
+  overflow:auto;
+  max-height:85vh;
+  color: var(--text);
+}
+/* Make settings text white */
+.modalInner .hint,
+.modalInner label,
+.modalInner label span,
+.modalInner .fieldLabel{ color: var(--text) !important; opacity:1; }
 .toggleRow{margin:10px 0}
 .toggle span{margin-left:8px}
-
 
 .breakdownTable{width:100%; border-collapse:separate; border-spacing:0 8px;}
 .breakdownTable th{color:var(--muted); font-size:12px; text-align:left; font-weight:800; padding:0 8px 6px;}
@@ -253,7 +238,7 @@ body{
 </style>
 </head>
 <body>
-  <header class="topbar">
+  <header class="appHeader">
     <div class="brand">
       <img class="brandLogo" src="icons/icon-192.png" alt="TicketHelpLFC" />
       <div>
@@ -343,9 +328,6 @@ body{
         </div>
         <div id="compBreakdown" class="breakdown"></div>
       </section>
-
-      </section>
-</section>
 
     <!-- Matches -->
     <section id="viewMatches" class="view hidden">
@@ -528,6 +510,8 @@ body{
 <!-- Settings modal -->
     <dialog id="settingsModal" class="modal">
       <div class="modalInner">
+<dialog id="settingsModal" class="modal">
+      <div class="modalInner">
         <div class="row space-between">
           <div class="label">⚙️ Rules & Settings</div>
           <button id="btnCloseSettings" class="btn ghost">✖️</button>
@@ -569,9 +553,7 @@ body{
         <div class="hint">
           “JSON” is best for restoring exactly. “CSV” is for spreadsheets.
         </div>
-      </div>
-    
-      <hr class="sep" />
+        <hr class="sep"/>
       <div id="settingsData">
         <div class="label">📦 Data</div>
         <div class="row gap wrap" style="margin-top:8px;">
@@ -583,6 +565,8 @@ body{
           </label>
         </div>
         <div class="hint" style="margin-top:6px;">Export/Import is stored locally on this device.</div>
+      </div>
+      </div>
       </div>
 </dialog>
   </main>
@@ -809,7 +793,7 @@ function formatMeta(m) {
 }
 
 function badgeForCredit(m) {
-  if (m.creditCredits === "yes") return { text: "🟢 Credits", cls: "good" };
+  if (m.creditCredits === "yes") return { text: "🟢 Credit", cls: "good" };
   if (m.creditCredits === "no") return { text: "🔴 No credit", cls: "bad" };
   return { text: "ℹ️ Unsure", cls: "neutral" };
 }
