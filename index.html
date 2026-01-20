@@ -134,6 +134,11 @@ body{
   padding:12px;
   background:#0f0f0f;
 }
+
+.item.fixtureTracked{
+  outline:2px solid #f1c40f;
+  outline-offset:0;
+}
 .itemTop{display:flex; justify-content:space-between; gap:10px; align-items:flex-start}
 .itemTitle{font-weight:900}
 .itemMeta{color:var(--muted); font-size:12px; margin-top:4px}
@@ -1752,6 +1757,13 @@ async function renderFixtures() {
 
     if (countEl) countEl.textContent = `Loaded ${data.length} fixtures • Showing ${filtered.length}`;
 
+// Build a fast lookup of tracked matches for this account/season
+const _seasonId = activeSeasonId();
+const _accId = activeAccountId();
+const _matches = (state.data.matches || []).filter(m => m && m.seasonId === _seasonId && (!_accId || m.accountId === _accId));
+const _trackedIds = new Set(_matches.map(m => (m.fixtureKey || "").trim()).filter(Boolean));
+const _trackedKeys = new Set(_matches.map(m => `${(m.matchDate||"")}|${(m.competition||"")}|${(m.venue||"")}|${(m.opponent||"")}`.toLowerCase()).filter(k => k !== "|||"));
+
     listEl.innerHTML = filtered.map(f => {
       const when = (f.date || (f.datetime_utc||"").slice(0,10));
       const ha = (f.venue === "A") ? "A" : "H";
@@ -1759,8 +1771,10 @@ async function renderFixtures() {
       const opp = f.opponent || "—";
       const time = (f.time && f.time !== "00:00") ? ` • ${f.time}` : "";
       const fid = (f.id || "").replace(/"/g,'');
+      const key = `${when}|${comp}|${ha}|${opp}`.toLowerCase();
+      const tracked = (fid && _trackedIds.has(fid)) || _trackedKeys.has(key);
       return `
-        <div class="item clickable" data-fixture-id="${fid}">
+        <div class="item clickable ${tracked ? "fixtureTracked" : ""}" data-fixture-id="${fid}">
           <div class="row space-between">
             <div>
               <div class="itemTitle">${opp}</div>
