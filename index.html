@@ -372,6 +372,32 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
   flex-shrink:0;
   white-space:nowrap;
 }
+/* Right-side H/A pill */
+.pill{
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background: var(--chip);
+  font-weight:900;
+  font-size:12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:34px;
+}
+
+/* Only colour the H/A pill */
+.pill.ha-home{
+  background: rgba(227,27,35,.90);
+  color:#fff;
+  border-color: rgba(227,27,35,.55);
+}
+
+.pill.ha-away{
+  background: rgba(20,184,166,.90);
+  color:#042f2e;
+  border-color: rgba(20,184,166,.55);
+}
 
 /* Ensure title wraps nicely without pushing credit */
 .fixtureTitle{
@@ -431,8 +457,8 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
     <!-- Setup (no popup) -->
     <section id="viewSetup" class="view hidden">
       <section class="card">
-        <div class="label">🔴 TicketHelpLFC – Setup</div>
-        <div class="hint">Set up the accounts you want to track. No logins. Data stays on your device.</div>
+        <div class="label">🔴 Add account details below 🔴</div>
+        <div class="hint">Set up the accounts you want to track. Include AutoCup and Year, then click save.</div>
       </section>
 
       <section class="card">
@@ -453,7 +479,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
         <div id="setupNames" class="list" style="margin-top:10px;"></div>
 
         <div class="row gap wrap" style="margin-top:14px;">
-          <button id="btnSetupCreate" class="btn primary">🟢 Save setup</button>
+          <button id="btnSetupCreate" class="btn primary">🟢 Save Account </button>
         </div>
       </section>
     </section>
@@ -697,6 +723,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
   <span>📝 Give feedback</span>
   <span id="feedbackArrow">▸</span>
 </button>
+    
 
 <div id="feedbackPanel" class="feedbackPanel hidden">
 <div class="formEmbedWrap">
@@ -1557,7 +1584,7 @@ function bindEvents() {
     }
   });
 
-  onEl("btnReloadFixtures","click", ()=>{ fixturesCache=null; renderFixtures(); });
+  onEl("btnReloadFixtures","click", reloadFixturesHard);
   onEl("fixtureShow","change", renderFixtures);
   onEl("fixtureComp","change", renderFixtures);
 
@@ -1789,13 +1816,166 @@ function createAccount(name, autoCup={LC:false, FAC:false, UCL:false}, seasonId=
 
 var fixturesCache = null;
 
+// Published Google Sheet (CSV)
+const FIXTURES_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqcy7d0MakWNfXkcDa60y4opsxQifUfzw38man6J0-U-2BvQKbUIJPnpPMFaxQMlYBV2-psPNram_E/pub?gid=716063176&single=true&output=csv";
 
+// Cache CSV results in localStorage (so fixtures still load if you're offline)
+const FIXTURES_CACHE_KEY = "thlfc_fixtures_csv_cache_v1";
+const FIXTURES_CACHE_TS_KEY = "thlfc_fixtures_csv_cache_ts_v1";
+const FIXTURES_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
 
+function loadCachedCSVFixtures() {
+  try {
+    const ts = Number(localStorage.getItem(FIXTURES_CACHE_TS_KEY) || "0");
+    const raw = localStorage.getItem(FIXTURES_CACHE_KEY);
+    if (!raw) return null;
+    const fixtures = JSON.parse(raw);
+    if (!Array.isArray(fixtures)) return null;
+    return { ts, fixtures };
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveCachedCSVFixtures(fixtures) {
+  try {
+    localStorage.setItem(FIXTURES_CACHE_KEY, JSON.stringify(fixtures || []));
+    localStorage.setItem(FIXTURES_CACHE_TS_KEY, String(Date.now()));
+  } catch (e) {}
+}
+
+// Simple CSV parser that supports quoted fields + commas
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let cur = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < (text || "").length; i++) {
+    const ch = text[i];
+    const next = text[i + 1];
+
+    if (inQuotes) {
+      if (ch === '"' && next === '"') {
+        cur += '"';
+        i++;
+      } else if (ch === '"') {
+        inQuotes = false;
+      } else {
+        cur += ch;
+      }
+      continue;
+    }
+
+    if (ch === '"') {
+      inQuotes = true;
+      continue;
+    }
+
+    if (ch === ",") {
+      row.push(cur);
+      cur = "";
+      continue;
+    }
+
+    if (ch === "\n") {
+      row.push(cur);
+      rows.push(row);
+      row = [];
+      cur = "";
+      continue;
+    }
+
+    if (ch === "\r") continue;
+
+    cur += ch;
+  }
+
+  // last cell
+  row.push(cur);
+  rows.push(row);
+
+  // drop fully empty trailing rows
+  while (rows.length && rows[rows.length - 1].every(v => String(v || "").trim() === "")) rows.pop();
+  return rows;
+}
+
+function toFixtureObject(headers, cells) {
+  const obj = {};
+  headers.forEach((h, idx) => { obj[h] = (cells[idx] ?? "").trim(); });
+
+  const date = obj.date || "";
+  const time = obj.time || "00:00";
+  const competition = obj.competition || "OTHER";
+  const opponent = obj.opponent || "";
+  const venue = (obj.venue || "H").toUpperCase() === "A" ? "A" : "H";
+
+  // Ensure ID exists (needed for de-duping + tracked highlighting)
+  const safeOpp = opponent.replace(/\s+/g, "").toLowerCase();
+  const id = (obj.id && obj.id.trim()) ? obj.id.trim() :
+    `${date}-${competition.toLowerCase()}-${safeOpp}-${venue.toLowerCase()}-${String(time).replace(":","")}`;
+
+  // Ensure datetime_utc exists (some parts of the app use date only, but keep it consistent)
+  const dtUtc = (obj.datetime_utc && obj.datetime_utc.trim()) ? obj.datetime_utc.trim() :
+    (date ? `${date}T${time}:00Z` : "");
+
+  return {
+    id,
+    season: obj.season || "",
+    date,
+    time,
+    datetime_utc: dtUtc,
+    competition,
+    opponent,
+    venue,
+    location: obj.location || ""
+  };
+}
+
+async function fetchFixturesFromCSV() {
+  const res = await fetch(FIXTURES_CSV_URL, { cache: "no-store" });
+  if (!res.ok) throw new Error(`CSV HTTP ${res.status}`);
+  const text = await res.text();
+  const rows = parseCSV(text);
+  if (!rows.length) return [];
+  const headers = rows[0].map(h => String(h || "").trim());
+  const dataRows = rows.slice(1);
+
+  const fixtures = [];
+  for (const r of dataRows) {
+    if (!r || r.every(v => String(v || "").trim() === "")) continue;
+    fixtures.push(toFixtureObject(headers, r));
+  }
+
+  // De-dupe by id (keep last)
+  const map = new Map();
+  fixtures.forEach(f => { if (f && f.id) map.set(String(f.id), f); });
+  return Array.from(map.values());
+}
 
 async function loadFixturesData() {
   if (fixturesCache) return fixturesCache;
 
-  // Primary: embedded JSON in index.html (offline + SW-safe)
+  // 1) CSV cache (fast + offline-friendly)
+  const cached = loadCachedCSVFixtures();
+  if (cached && (Date.now() - cached.ts) < FIXTURES_TTL_MS && cached.fixtures.length) {
+    fixturesCache = cached.fixtures;
+    return fixturesCache;
+  }
+
+  // 2) Live CSV (Google Sheet)
+  try {
+    const fixtures = await fetchFixturesFromCSV();
+    if (Array.isArray(fixtures) && fixtures.length) {
+      fixturesCache = fixtures;
+      saveCachedCSVFixtures(fixturesCache);
+      return fixturesCache;
+    }
+  } catch (e) {
+    // swallow + fall through to embedded/imported
+  }
+
+  // 3) Embedded JSON in index.html (offline + SW-safe)
   try {
     const el = document.getElementById("fixturesData");
     if (el && el.textContent) {
@@ -1805,7 +1985,7 @@ async function loadFixturesData() {
     }
   } catch(e) {}
 
-  // Fallback: imported fixtures from localStorage
+  // 4) Imported fixtures from localStorage
   try {
     const imported = getImportedFixtures();
     if (Array.isArray(imported) && imported.length) {
@@ -1837,7 +2017,7 @@ function fixtureRow(f) {
         <div class="itemTitle">${opp}</div>
         <div class="hint">${when}${time} • ${comp} • ${ha}</div>
       </div>
-      <div class="pill">${ha}</div>
+     <div class="pill ${ha === "H" ? "ha-home" : "ha-away"}">${ha}</div>
     </div>
   `;
   el.addEventListener("click", () => prefillFromFixture(f));
@@ -1913,7 +2093,7 @@ const _trackedKeys = new Set(_matches.map(m => `${(m.matchDate||"")}|${(m.compet
               <div class="itemTitle">${opp}</div>
               <div class="hint">${when}${time} • ${comp} • ${ha}</div>
             </div>
-            <div class="pill">${ha}</div>
+           <div class="pill ${ha === "H" ? "ha-home" : "ha-away"}">${ha}</div>
           </div>
         </div>
       `;
@@ -1994,7 +2174,7 @@ function showToast(msg){
   const fr = document.getElementById("btnReloadFixtures");
   if (fs) fs.addEventListener("change", renderFixtures);
   if (fc) fc.addEventListener("change", renderFixtures);
-  if (fr) fr.addEventListener("click", ()=>{ fixturesCache=null; renderFixtures(); });
+  if (fr) fr.addEventListener("click", reloadFixturesHard);
   const clr = document.getElementById("btnClearFixtures");
   if (clr) clr.addEventListener("click", ()=>{ setImportedFixtures([]); fixturesCache=null; try{showToast("Cleared imported fixtures");}catch(e){} renderFixtures(); });
 })();
@@ -2085,13 +2265,36 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.getRegistration().then(reg => { if (reg) reg.update(); });
 }
 
+async function reloadFixturesHard(){
+  try{
+    // Clear in-memory + local cached CSV so we definitely fetch the latest sheet
+    fixturesCache = null;
+    try{
+      localStorage.removeItem(FIXTURES_CACHE_KEY);
+      localStorage.removeItem(FIXTURES_CACHE_TS_KEY);
+    }catch(_){}
+
+    // Fetch live CSV immediately (and re-cache it)
+    const live = await fetchFixturesFromCSV();
+    if (Array.isArray(live) && live.length){
+      fixturesCache = live;
+      saveCachedCSVFixtures(live);
+    }
+
+    await renderFixtures();
+  }catch(e){
+    console.error("Failed to refresh fixtures", e);
+    alert("Failed to refresh fixtures. Check your connection and try again.");
+  }
+}
+
 function bindFixturesControls(){
   const fs = document.getElementById("fixtureShow");
   const fc = document.getElementById("fixtureComp");
   const fr = document.getElementById("btnReloadFixtures");
   if (fs) fs.onchange = () => renderFixtures();
   if (fc) fc.onchange = () => renderFixtures();
-  if (fr) fr.onclick = () => { fixturesCache = null; renderFixtures(); };
+  if (fr) fr.onclick = reloadFixturesHard;
 }
 
 function seasonLabel(startYY){
@@ -2207,6 +2410,6 @@ onEl("btnToggleFeedback","click", ()=>{
 </script>
 
 
-  <footer class="buildFooter">Build 2026-01-19 • fixtures-small</footer>
+  <footer class="buildFooter">YNWA</footer>
 </body>
 </html>
