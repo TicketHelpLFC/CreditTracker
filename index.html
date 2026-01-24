@@ -694,29 +694,7 @@ dialog.modal input, dialog.modal select, dialog.modal textarea{
       </section>
     </section>
 
-<!-- Support & Feedback -->
-<dialog id="supportModal" class="modal hidden">
-  <div class="modalInner">
-    <div class="modalHeader">
-      <div class="modalTitle">💬 Support & Feedback</div>
-      <button type="button" class="btn ghost sm" id="btnCloseSupport" aria-label="Close">✖</button>
-    </div>
 
-    <div class="hr"></div>
-
-    <h3 style="margin:0 0 6px;">☕ Support the tools</h3>
-    <div class="hint" style="margin-bottom:10px;">
-      Built to help the community and kept free for everyone.
-      Optional support helps with hosting + new features. Thank you ❤️
-    </div>
-    <button type="button" id="btnBmac" class="btn full">Open Buy Me a Coffee</button>
-
-    <div class="hr" style="margin-top:16px;"></div>
-
-    <h3 style="margin:0 0 6px;">📝 Send feedback</h3>
-    <div class="hint" style="margin-bottom:10px;">
-      Fill this in and it’ll send straight to me via Google Forms.
-    </div>
 
     
 <button id="btnToggleFeedback" class="toggleRow">
@@ -1665,7 +1643,7 @@ onEl("btnSettings","click", openSettings);
 
 onEl("btnSupport","click", openSupport);
 onEl("btnCloseSupport","click", closeSupport);
-onEl("btnBmac","click", ()=> window.open("https://buymeacoffee.com/TicketHelpLFC", "_blank", "noopener"));
+onEl("btnBmac","click", ()=> window.open("", "_blank", "noopener"));
 }
 
 function init() {
